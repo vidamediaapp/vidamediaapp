@@ -5,7 +5,7 @@ import { AppDataSource } from './db'
 async function main() {
 
     await AppDataSource.initialize();
-    app.listen(3000)
+    app.listen(3000);
 
 
 
