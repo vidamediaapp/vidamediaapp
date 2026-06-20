@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    // === LAYOUT ===
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // === ENTORNO (Node.js) ===
+    "module": "commonjs",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "types": ["node"],      
+    "ignoreDeprecations": "6.0",            
+
+    // === MODULOS (SIN verbatimModuleSyntax) ===
+    "moduleResolution": "node",         
+    "esModuleInterop": true,             
+
+    // === OUTPUTS ===
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // === DECORADORES (CRÍTICO PARA TYPEORM) ===
+    "emitDecoratorMetadata": true,       // ← CORREGIDO (estaba mal escrito)
+    "experimentalDecorators": true,
+
+    // === TIPADO ESTRICTO ===
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // === ELIMINADO ===
+    // "verbatimModuleSyntax": true,     // ← Elimina esto (conflicto con commonjs)
+    // "isolatedModules": true,          // ← Elimina esto (no lo necesitas)
+    // "moduleDetection": "force",       // ← Elimina esto (no es necesario)
+    // "jsx": "react-jsx",               // ← Elimina esto (no usas React)
+
+    // === OPCIONALES (si quieres más control) ===
+    // "noImplicitReturns": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+
+    // === RECOMENDADOS ===
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
