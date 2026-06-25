@@ -34,7 +34,8 @@ export class Acreedor {
 
     @UpdateDateColumn({ name: 'actualizado_en' })
     actualizadoEn: Date;
-      @OneToMany(() => Deuda, (deuda) => deuda.acreedor)
-      deudas!: Deuda[];
+      
+    @OneToMany(() => Deuda, (deuda) => deuda.acreedor)
+    deudas!: Deuda[];
     
 }

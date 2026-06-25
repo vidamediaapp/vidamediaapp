@@ -1,16 +1,15 @@
-
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 import { Acreedor } from './acreedores';
 import { Usuario } from './usuario';
-import { Simulacion } from './simulaciones';
+import { Deuda } from './deudas';
 
-@Entity({ name: 'deudas' })
-export class Deuda {
+@Entity({ name: 'simulaciones' })
+export class Simulacion {
 
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => Usuario, (usuario) => usuario.deudas, { 
+  @ManyToOne(() => Usuario, (usuario) => usuario.simulaciones, { 
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   })
@@ -18,10 +17,13 @@ export class Deuda {
   usuario!: Usuario;
 
 
-  @ManyToOne(() => Acreedor, (acreedor) => acreedor.deudas, { 
+@ManyToOne(() => Deuda, (deuda) => deuda.simulaciones, { 
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE'
   })
+  @JoinColumn({ name: 'id_deuda' })
+  deuda!: Deuda;
+
   @JoinColumn({ name: 'id_acreedor' })  
   acreedor!: Acreedor;
 
@@ -44,7 +46,5 @@ export class Deuda {
   @Column({ name: 'estado', type: 'varchar', length: 20, default: 'pendiente' })
   estado!: string;
 
-@OneToMany(() => Simulacion, (simulaciones) => simulaciones.deuda)
-simulaciones!: Simulacion[];
-    
+
 }
