@@ -1,0 +1,216 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Vida Media</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- ══════════════════════════════════════════════════════
+       ESTADO VACÍO — si no hay datos en presupuesto aún
+  ═══════════════════════════════════════════════════════ -->
+  <div class="empty-state" *ngIf="!hasData()">
+    <ion-icon name="wallet-outline"></ion-icon>
+    <h2>Aún no hay datos</h2>
+    <p>Ingresa tu presupuesto mensual para ver tu resumen financiero aquí.</p>
+    <a routerLink="/presupuesto" class="empty-cta">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+      Ir a Presupuesto mensual
+    </a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       CONTENIDO PRINCIPAL — cuando hay datos
+  ═══════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="hasData()">
+
+    <!-- BARRA DE LIBERTAD FINANCIERA -->
+    <div class="freedom-hero">
+      <p class="hero-label">Barra de libertad financiera</p>
+      <p class="hero-pct">{{ freedomPercent() }}%</p>
+      <p class="hero-sub">
+        {{ totalPaid() | clp }} pagados de {{ totalOriginal() | clp }}
+      </p>
+      <div class="freedom-track">
+        <div class="freedom-fill" [style.width]="freedomPercent() + '%'"></div>
+      </div>
+      <div class="badge-row">
+        <div class="vm-badge" *ngFor="let a of achievements()" [class.earned]="a.earned">
+          <ion-icon [name]="a.icon"></ion-icon>
+          <span>{{ a.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMEN DE INGRESOS vs COMPROMETIDO -->
+    <div class="section-wrap">
+      <p class="section-label">
+        <ion-icon name="wallet-outline"></ion-icon>
+        Resumen del mes
+      </p>
+      <ion-card class="vm-card">
+        <ion-card-content>
+          <div class="budget-grid">
+            <div class="bg-col">
+              <span class="bg-label">Ingreso total</span>
+              <span class="bg-val teal">{{ totalIncome() | clp }}</span>
+            </div>
+            <div class="bg-divider"></div>
+            <div class="bg-col">
+              <span class="bg-label">Comprometido</span>
+              <span class="bg-val warn">{{ totalCommitted() | clp }}</span>
+            </div>
+            <div class="bg-divider"></div>
+            <div class="bg-col right">
+              <span class="bg-label">Disponible</span>
+              <span class="bg-val" [class]="availableClass()">{{ available() | clp }}</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- RACHA DE PAGOS -->
+    <div class="section-wrap">
+      <p class="section-label">
+        <ion-icon name="flame-outline"></ion-icon>
+        Racha de pagos
+      </p>
+      <div class="streak-card">
+        <div class="streak-num-col">
+          <span class="streak-num">{{ streak().currentStreak }}</span>
+          <span class="streak-unit">meses</span>
+        </div>
+        <div class="streak-right">
+          <p class="streak-sub">Últimos {{ streak().months.length }} meses</p>
+          <div class="streak-dots">
+            <div
+              class="streak-dot"
+              *ngFor="let m of streak().months"
+              [class.on-time]="m.onTime"
+              [class.missed]="!m.onTime">
+              {{ m.label }}
+            </div>
+          </div>
+          <p class="streak-record">
+            Mejor racha: <strong>{{ streak().longestStreak }} meses</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEUDAS REGISTRADAS EN PRESUPUESTO -->
+    <div class="section-wrap" *ngIf="debts().debts.length > 0">
+      <p class="section-label">
+        <ion-icon name="business-outline"></ion-icon>
+        Mis deudas activas
+      </p>
+
+      <ion-card class="vm-card">
+        <ion-card-content>
+          <div
+            class="debt-row"
+            *ngFor="let d of debts().debts; let last = last"
+            [class.no-border]="last">
+
+            <div class="debt-icon" [style.background]="creditorColor(d.creditorId) + '1A'">
+              <ion-icon [name]="creditorIcon(d.creditorId)" [style.color]="creditorColor(d.creditorId)"></ion-icon>
+            </div>
+
+            <div class="debt-info">
+              <div class="debt-name-row">
+                <span class="debt-name">{{ creditorName(d.creditorId) }}</span>
+                <button class="cae-link" (click)="toggleCaePopover()">¿Qué es CAE?</button>
+              </div>
+              <span class="debt-detail">
+                {{ d.paidInstallments }}/{{ d.totalInstallments }} cuotas ·
+                cuota mensual {{ d.monthlyPayment | clp }}
+              </span>
+              <div class="debt-track">
+                <div
+                  class="debt-fill"
+                  [style.width]="store.debtPct(d) + '%'"
+                  [style.background]="creditorColor(d.creditorId)">
+                </div>
+              </div>
+            </div>
+
+            <div class="debt-amount">
+              <span class="debt-balance">{{ d.totalAmount | clp }}</span>
+              <span class="debt-pct" [style.color]="creditorColor(d.creditorId)">
+                {{ store.debtPct(d) }}% pagado
+              </span>
+            </div>
+          </div>
+
+          <!-- Popover educativo CAE -->
+          <div class="edu-popover" *ngIf="showCaePopover()">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <div>
+              <strong>¿Qué es el CAE?</strong>
+              El Costo Anual Equivalente incluye tasa, seguros y comisiones.
+              Un 44% significa que la deuda crece $44.000 por cada $100.000 al año sin abonos.
+            </div>
+            <button (click)="toggleCaePopover()">✕</button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- LINK RÁPIDO A PRESUPUESTO -->
+    <div class="section-wrap">
+      <a routerLink="/presupuesto" class="edit-budget-link">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <span>Actualizar presupuesto mensual</span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </a>
+    </div>
+
+    <!-- CONVERSOR UF -->
+    <div class="section-wrap" style="padding-bottom: 32px;">
+      <p class="section-label">
+        <ion-icon name="calculator-outline"></ion-icon>
+        Conversor UF a pesos
+      </p>
+
+      <ion-card class="vm-card uf-card">
+        <ion-card-content>
+          <div class="uf-rate-row">
+            <span>UF hoy (CMF):</span>
+            <strong class="uf-value">{{ ufValue() | clp }}</strong>
+            <span class="uf-date">· {{ lastUpdated() }}</span>
+          </div>
+          <div class="uf-input-row">
+            <div class="uf-field">
+              <ion-input
+                type="number"
+                placeholder="Ingresa monto en UF"
+                inputmode="decimal"
+                [clearInput]="true"
+                (ionInput)="onUfInput($event)">
+              </ion-input>
+              <span class="uf-field-label">UF</span>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="uf-arrow"></ion-icon>
+            <div class="uf-result-box" [class.has-value]="ufResult() != null">
+              <span *ngIf="ufResult() == null" class="uf-placeholder">— pesos</span>
+              <span *ngIf="ufResult() != null" class="uf-pesos">{{ ufResult()! | clp }}</span>
+            </div>
+          </div>
+          <div class="uf-chips">
+            <button class="uf-chip" (click)="ufInputValue.set(10)">10 UF</button>
+            <button class="uf-chip" (click)="ufInputValue.set(100)">100 UF</button>
+            <button class="uf-chip" (click)="ufInputValue.set(500)">500 UF</button>
+            <button class="uf-chip" (click)="ufInputValue.set(1000)">1.000 UF</button>
+          </div>
+          <div class="uf-example-result" *ngIf="ufResult() != null">
+            <strong>{{ ufInputValue() | number:'1.0-2':'es-CL' }} UF</strong>
+            equivalen a <strong class="teal">{{ ufResult()! | clp }}</strong>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+  </ng-container>
+
+</ion-content>
