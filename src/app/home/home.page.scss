@@ -1,0 +1,260 @@
+$bg-dark:  #0d1117;
+$bg-card:  #181c24;
+$border:   rgba(255, 255, 255, 0.07);
+$muted:    #6b7280;
+$text:     #e2e8f0;
+$teal:     #1D9E75;
+$teal-bg:  rgba(29, 158, 117, 0.12);
+$teal-dim: rgba(29, 158, 117, 0.3);
+$warn:     #EF9F27;
+$danger:   #E24B4A;
+
+ion-toolbar { --background: #{$bg-dark}; --color: #e8f5e9; }
+
+// ── Estado vacío ───────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 32px;
+  text-align: center;
+  gap: 12px;
+
+  ion-icon { font-size: 52px; color: $muted; }
+
+  h2 { font-size: 18px; font-weight: 500; color: $text; }
+
+  p { font-size: 13px; color: $muted; line-height: 1.6; }
+}
+
+.empty-cta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: $teal-bg;
+  border: 0.5px solid $teal-dim;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $teal;
+  text-decoration: none;
+
+  ion-icon { font-size: 16px; }
+}
+
+// ── Secciones ──────────────────────────────────────────────────────
+.section-wrap { padding: 12px 14px 0; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  ion-icon { font-size: 13px; }
+}
+
+// ── Libertad financiera ────────────────────────────────────────────
+.freedom-hero {
+  background: $bg-dark;
+  margin: 14px;
+  border-radius: 16px;
+  padding: 18px;
+  border: 0.5px solid rgba(29, 158, 117, 0.2);
+}
+
+.hero-label { font-size: 11px; color: $muted; text-transform: uppercase; letter-spacing: .5px; margin: 0 0 5px; }
+.hero-pct   { font-size: 48px; font-weight: 500; color: $teal; line-height: 1; margin: 0 0 4px; }
+.hero-sub   { font-size: 12px; color: $muted; margin: 0 0 12px; }
+
+.freedom-track { height: 7px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+.freedom-fill  { height: 100%; background: $teal; border-radius: 4px; transition: width .8s ease; }
+
+.badge-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.vm-badge  {
+  display: flex; align-items: center; gap: 3px; padding: 4px 9px;
+  border-radius: 20px; font-size: 10px;
+  background: rgba(255,255,255,.05); color: $muted; border: 0.5px solid rgba(255,255,255,.07);
+
+  &.earned { background: rgba(29,158,117,.14); color: $teal; border-color: $teal-dim; }
+  ion-icon  { font-size: 12px; }
+}
+
+// ── Resumen de presupuesto ─────────────────────────────────────────
+.vm-card {
+  --background: #{$bg-card};
+  border-radius: 14px !important;
+  border: 0.5px solid $border;
+  margin: 0 !important;
+}
+
+.budget-grid {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bg-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  &.right { align-items: flex-end; }
+}
+
+.bg-divider { width: .5px; height: 28px; background: $border; flex-shrink: 0; }
+.bg-label   { font-size: 10px; color: $muted; text-transform: uppercase; letter-spacing: .3px; }
+.bg-val     { font-size: 13px; font-weight: 500; color: $text;
+
+  &.teal { color: $teal; }
+  &.warn { color: $warn; }
+  &.ok   { color: $teal; }
+  &.over { color: $danger; }
+}
+
+// ── Racha ──────────────────────────────────────────────────────────
+.streak-card {
+  background: $bg-card; border-radius: 12px; border: 0.5px solid $border;
+  padding: 12px 14px; display: flex; align-items: center; gap: 14px;
+}
+
+.streak-num-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; min-width: 52px; }
+.streak-num     { font-size: 40px; font-weight: 500; color: $teal; line-height: 1; }
+.streak-unit    { font-size: 10px; color: $muted; }
+.streak-right   { flex: 1; }
+.streak-sub     { font-size: 10px; color: $muted; margin: 0 0 6px; }
+.streak-dots    { display: flex; gap: 4px; flex-wrap: wrap; }
+.streak-dot     {
+  width: 27px; height: 27px; border-radius: 7px; display: flex;
+  align-items: center; justify-content: center; font-size: 8px; font-weight: 500;
+
+  &.on-time { background: rgba(29,158,117,.18); color: $teal; }
+  &.missed  { background: rgba(255,255,255,.05); color: $muted; }
+}
+.streak-record  { font-size: 10px; color: $muted; margin: 6px 0 0; strong { color: $text; } }
+
+// ── Deudas ─────────────────────────────────────────────────────────
+.debt-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 0; border-bottom: 0.5px solid $border;
+
+  &.no-border { border-bottom: none; padding-bottom: 0; }
+}
+
+.debt-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  ion-icon { font-size: 17px; }
+}
+
+.debt-info  { flex: 1; min-width: 0; }
+.debt-name-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+}
+.debt-name   { font-size: 13px; font-weight: 500; color: $text; }
+.cae-link    {
+  font-size: 10px; color: $teal; background: none; border: none;
+  padding: 0; cursor: pointer; text-decoration: underline dotted;
+}
+.debt-detail { font-size: 11px; color: $muted; display: block; margin-bottom: 5px; }
+.debt-track  { height: 3px; background: rgba(255,255,255,.07); border-radius: 2px; overflow: hidden; }
+.debt-fill   { height: 100%; border-radius: 2px; transition: width .5s ease; }
+
+.debt-amount { text-align: right; flex-shrink: 0; }
+.debt-balance { display: block; font-size: 13px; font-weight: 500; color: $text; }
+.debt-pct     { display: block; font-size: 10px; margin-top: 2px; }
+
+.edu-popover {
+  display: flex; gap: 8px; align-items: flex-start;
+  background: $teal-bg; border: 0.5px solid $teal-dim;
+  border-radius: 9px; padding: 10px; margin-top: 10px;
+  font-size: 11px; color: #9ca3af; line-height: 1.6;
+  animation: fadeIn .15s ease;
+
+  ion-icon { font-size: 16px; color: $teal; flex-shrink: 0; margin-top: 1px; }
+  strong   { color: $teal; display: block; margin-bottom: 2px; }
+  button   { background: none; border: none; color: $muted; cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0; }
+}
+
+// ── Link actualizar presupuesto ────────────────────────────────────
+.edit-budget-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: $bg-card;
+  border: 0.5px solid $border; border-radius: 12px;
+  font-size: 13px; font-weight: 500; color: $text; text-decoration: none;
+  transition: border-color .2s;
+
+  &:active { border-color: $teal; }
+
+  ion-icon:first-child { color: $teal; font-size: 18px; }
+  span { flex: 1; }
+  ion-icon:last-child  { color: $muted; font-size: 16px; }
+}
+
+// ── Conversor UF ───────────────────────────────────────────────────
+.uf-card { --background: #{$bg-dark}; border-color: rgba(29,158,117,.2) !important; }
+
+.uf-rate-row {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: $muted; margin-bottom: 12px; flex-wrap: wrap;
+}
+.uf-value { color: $teal; font-size: 13px; }
+.uf-date  { font-size: 10px; color: rgba(107,114,128,.6); }
+
+.uf-input-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.uf-field {
+  flex: 1; display: flex; align-items: center;
+  background: rgba(255,255,255,.04); border: 0.5px solid #2a2e35;
+  border-radius: 9px; overflow: hidden;
+  &:focus-within { border-color: $teal; }
+
+  ion-input { --color: #{$text}; --placeholder-color: #{$muted}; --padding-start: 12px; font-size: 14px; }
+}
+.uf-field-label { font-size: 11px; color: $muted; padding: 0 10px 0 4px; flex-shrink: 0; }
+.uf-arrow       { font-size: 17px; color: $muted; flex-shrink: 0; }
+.uf-result-box  {
+  min-width: 120px; min-height: 42px; display: flex; align-items: center;
+  justify-content: center; background: rgba(255,255,255,.04);
+  border: 0.5px solid rgba(255,255,255,.08); border-radius: 9px; padding: 0 10px;
+  transition: all .25s;
+
+  &.has-value { background: $teal-bg; border-color: $teal-dim; }
+}
+.uf-placeholder { font-size: 12px; color: $muted; }
+.uf-pesos       { font-size: 13px; font-weight: 500; color: $teal; }
+
+.uf-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.uf-chip  {
+  font-size: 10px; padding: 3px 9px; border-radius: 16px;
+  background: rgba(255,255,255,.05); border: 0.5px solid rgba(255,255,255,.1);
+  color: $text; cursor: pointer;
+  &:active { background: $teal-bg; border-color: $teal-dim; color: $teal; }
+}
+.uf-example-result {
+  background: $teal-bg; border: 0.5px solid $teal-dim;
+  border-radius: 8px; padding: 9px 10px; font-size: 12px;
+  color: #9ca3af; line-height: 1.6;
+  strong { color: $text; }
+  .teal  { color: $teal; }
+}
+
+.teal { color: $teal; }
+.warn { color: $warn; }
+.ok   { color: $teal; }
+.over { color: $danger; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
