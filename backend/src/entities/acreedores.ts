@@ -1,6 +1,7 @@
 
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Deuda } from './deudas';
+import { Simulacion } from './simulaciones';
 
 @Entity({ name: 'acreedores' })
 export class Acreedor {
@@ -37,5 +38,8 @@ export class Acreedor {
       
     @OneToMany(() => Deuda, (deuda) => deuda.acreedor)
     deudas!: Deuda[];
+
+    @OneToMany(() => Simulacion, (simulacion) => simulacion.acreedor)
+    simulaciones!: Simulacion[];
     
 }

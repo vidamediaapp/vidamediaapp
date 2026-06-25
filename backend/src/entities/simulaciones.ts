@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Acreedor } from './acreedores';
 import { Usuario } from './usuario';
 import { Deuda } from './deudas';
@@ -6,25 +6,30 @@ import { Deuda } from './deudas';
 @Entity({ name: 'simulaciones' })
 export class Simulacion {
 
+  
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => Usuario, (usuario) => usuario.simulaciones, { 
+  
+  @ManyToOne(() => Usuario, (usuario) => usuario.simulaciones, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   })
-  @JoinColumn({ name: 'id_usuario' })  
+  @JoinColumn({ name: 'id_usuario' })
   usuario!: Usuario;
 
-
-@ManyToOne(() => Deuda, (deuda) => deuda.simulaciones, { 
+  @ManyToOne(() => Deuda, (deuda) => deuda.simulaciones, {
     onDelete: 'RESTRICT',
     onUpdate: 'CASCADE'
   })
   @JoinColumn({ name: 'id_deuda' })
   deuda!: Deuda;
 
-  @JoinColumn({ name: 'id_acreedor' })  
+  @ManyToOne(() => Acreedor, (acreedor) => acreedor.simulaciones, {
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
+  @JoinColumn({ name: 'id_acreedor' })
   acreedor!: Acreedor;
 
 
@@ -43,8 +48,32 @@ export class Simulacion {
   @Column({ name: 'fecha_limite', type: 'date' })
   fecha_limite!: Date;
 
-  @Column({ name: 'estado', type: 'varchar', length: 20, default: 'pendiente' })
-  estado!: string;
+
+  @Column({ name: 'monto_propuesto', type: 'decimal', precision: 12, scale: 2 })
+  monto_propuesto!: number;
+
+  @Column({ name: 'meses_proyectados' })
+  meses_proyectados!: number; 
+
+  @Column({ name: 'interes_proyectado', type: 'decimal', precision: 12, scale: 2 })
+  interes_proyectado!: number; 
+
+  @Column({ name: 'total_pagado', type: 'decimal', precision: 12, scale: 2 })
+  total_pagado!: number; 
+
+  @Column({ name: 'es_trampa', default: false })
+  es_trampa!: boolean; 
 
 
+  @Column({ name: 'estrategia_usada', type: 'varchar', length: 50, nullable: true })
+  estrategia_usada!: string; 
+
+  @Column({ name: 'nota', type: 'text', nullable: true })
+  nota!: string; 
+
+  @Column({ name: 'fecha_simulacion', type: 'date' })
+  fecha_simulacion!: Date; 
+
+  @CreateDateColumn({ name: 'creado_en' })
+  creado_en!: Date;
 }
