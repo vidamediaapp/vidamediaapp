@@ -1,5 +1,12 @@
-import express from 'express';
-const router = express.Router();
+import { Router } from 'express';
+import {AcreedorController} from '../controllers/acreedor-controller';
+import {AcreedorService} from '../services/acreedor-service';
+import {AppDataSource} from '../db';
+import {Acreedor} from '../entities/acreedores';
+import {authenticate} from '../middlewares/auth';
+
+
+const router = Router();
 
 router.get('/', (req, res) => {
   res.send('Acreedores routes');
