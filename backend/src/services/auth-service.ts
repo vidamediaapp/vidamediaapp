@@ -44,6 +44,7 @@ export class AuthService {
         return this.userRepository.save(nuevoUsuario);
     }
 
+
     async login({ email, password }: LoginData): Promise<string> {
         const usuario = await this.userRepository.findOne({ where: { email } });
         if (!usuario) {
