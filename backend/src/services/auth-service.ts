@@ -9,7 +9,7 @@ interface RegisterData {
   nombre: string;
   apaterno: string;
   amaterno: string;
-  telefono?: string;
+  telefono: string;
 }
 
 interface LoginData {

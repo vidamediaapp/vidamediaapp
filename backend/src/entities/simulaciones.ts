@@ -25,12 +25,6 @@ export class Simulacion {
   @JoinColumn({ name: 'id_deuda' })
   deuda!: Deuda;
 
-  @ManyToOne(() => Acreedor, (acreedor) => acreedor.simulaciones, {
-    onDelete: 'RESTRICT',
-    onUpdate: 'CASCADE'
-  })
-  @JoinColumn({ name: 'id_acreedor' })
-  acreedor!: Acreedor;
 
 
   @Column({ name: 'monto_original', type: 'decimal', precision: 12, scale: 2 })

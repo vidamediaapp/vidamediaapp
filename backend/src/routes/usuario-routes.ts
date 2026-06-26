@@ -6,7 +6,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/register', (req, res) => {
-  // Aquí iría la lógica para registrar un nuevo usuario
+
   res.send('Registro de usuario');
 });
 

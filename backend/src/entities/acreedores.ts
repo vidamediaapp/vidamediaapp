@@ -39,7 +39,6 @@ export class Acreedor {
     @OneToMany(() => Deuda, (deuda) => deuda.acreedor)
     deudas!: Deuda[];
 
-    @OneToMany(() => Simulacion, (simulacion) => simulacion.acreedor)
-    simulaciones!: Simulacion[];
+    
     
 }

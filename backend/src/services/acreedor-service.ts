@@ -7,7 +7,7 @@ export class AcreedorService {
     constructor(private acreedorRepository: Repository<Acreedor>) {}
 
     async findAll(): Promise<Acreedor[]> {
-        return this.acreedorRepository.find();
+        return await this.acreedorRepository.find();
     };
 
     async obtenerAcreedorPorId(id: number): Promise<Acreedor | null> {

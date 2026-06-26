@@ -39,10 +39,10 @@ export class Deuda {
   porcentaje_pago_minimo!: number;
 
   @Column({ name: 'fecha_limite', type: 'date' })
-  fecha_limite!: Date;
+  fecha_limite: Date;
 
   @Column({ name: 'estado', type: 'varchar', length: 20, default: 'pendiente' })
-  estado!: string;
+  estado: string;
 
 @OneToMany(() => Simulacion, (simulaciones) => simulaciones.deuda)
 simulaciones!: Simulacion[];
