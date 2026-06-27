@@ -24,6 +24,7 @@ log.txt
 /plugins
 
 # Compiled output
+backend/dist/
 /dist
 /tmp
 /out-tsc
