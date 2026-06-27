@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMan
 import { Acreedor } from './acreedores';
 import { Usuario } from './usuario';
 import { Simulacion } from './simulaciones';
+import {Pago} from './pagos'
 
 @Entity({ name: 'deudas' })
 export class Deuda {
@@ -46,5 +47,8 @@ export class Deuda {
 
 @OneToMany(() => Simulacion, (simulaciones) => simulaciones.deuda)
 simulaciones!: Simulacion[];
+
+@OneToMany(() => Pago, (pago) => pago.deuda)
+pagos!: Pago[];
     
 }

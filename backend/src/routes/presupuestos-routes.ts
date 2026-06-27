@@ -81,3 +81,5 @@ router.get('/historial', (req, res) => {
 router.get('/:id', (req, res) => {
   res.send(`Obtener presupuesto con ID: ${req.params.id}`);
 }); 
+
+export default router

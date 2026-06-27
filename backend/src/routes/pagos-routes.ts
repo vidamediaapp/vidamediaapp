@@ -15,4 +15,5 @@ router.get('/:id', (req, res) => {
   res.send(`Obtener pago con ID: ${req.params.id}`);
 });     
 
+
 export default router;

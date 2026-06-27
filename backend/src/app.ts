@@ -1,12 +1,21 @@
-import Express from 'express'
-import morgan from 'morgan'
-import cors from 'cors'
+import express from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
+import routes from './routes'; 
 
-const app = Express ()
-
-app.use (morgan('dev'))
-app.use (cors())
+const app = express();
 
 
+app.use(morgan('dev'));
+app.use(cors());
+app.use(express.json()); 
 
-export default app
+
+app.use('/api', routes);   
+
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Vida Media Backend funcionando' });
+});
+
+export default app;
