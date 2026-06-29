@@ -1,27 +1,49 @@
-import { Repository } from 'typeorm';
+import { Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import { Usuario } from '../entities/usuario';
 
 export class UsuarioService {
     constructor(private usuarioRepository: Repository<Usuario>) {}
-    async obtenerTodos(): Promise<Usuario[]> {
-        return await this.usuarioRepository.find();
-    }
+async obtenerTodos(): Promise<Omit<Usuario, 'passwordHash'>[]> {
+    const usuarios = await this.usuarioRepository.find({
+        select: {
+            id: true,
+            email: true,
+            nombre: true,
+            apaterno: true,
+            amaterno: true,
+            telefono: true
+        }
+    });
+    return usuarios; 
+}
 
    
-    async obtenerUsuarioPorId(id: string): Promise<Omit<Usuario, 'passwordHash'> | null> {
-        const usuario = await this.usuarioRepository.findOne({
-            where: { id }
-        });
-
-        if (!usuario) {
-            return null;
-        }
-
-        
-        const { passwordHash, ...usuarioSinPassword } = usuario;
-        return usuarioSinPassword as Omit<Usuario, 'passwordHash'>;
+async obtenerUsuarioPorId(id: string): Promise<Omit<Usuario, 'passwordHash'> | null> {
+    if (!id) {
+        throw new Error('ID de usuario es requerido');
     }
+
+    const usuario = await this.usuarioRepository.findOne({
+        where: { id },
+        select: {
+            id: true,
+            email: true,
+            nombre: true,
+            apaterno: true,
+            amaterno: true,
+            telefono: true,
+
+        }
+    });
+
+
+    if (!usuario) {
+        return null;
+    }
+
+    return usuario;
+}
 
     
     async obtenerUsuarioPorEmail(email: string): Promise<Omit<Usuario, 'passwordHash'> | null> {
