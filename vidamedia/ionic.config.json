@@ -1,7 +1,0 @@
-{
-  "name": "vidamedia",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}

@@ -28,10 +28,12 @@
           <span class="vm-suffix">CLP</span>
         </div>
       </div>
+
       <div class="vm-field">
         <label class="vm-label">
           <ion-icon name="add-outline"></ion-icon>
-          Ingresos extra <span class="vm-optional">(opcional)</span>
+          Ingresos extra
+          <span class="vm-optional">(opcional)</span>
         </label>
         <div class="vm-input-wrap">
           <span class="vm-prefix">$</span>
@@ -40,6 +42,7 @@
           <span class="vm-suffix">CLP</span>
         </div>
       </div>
+
       <div class="vm-budget-summary">
         <div class="bsum-col">
           <span class="bsum-label">Total</span>
@@ -59,119 +62,206 @@
     </div>
   </section>
 
-  <!-- ══ SECCIÓN 2: CUOTAS POR ACREEDOR ══ -->
-  <section class="vm-section">
-    <p class="vm-section-label">
-      <ion-icon name="storefront-outline"></ion-icon>
-      Cuotas mensuales por acreedor
-    </p>
-    <div class="vm-card">
-      <div class="vm-creditor-row"
-           *ngFor="let c of creditors; let last = last"
-           [class.no-border]="last"
-           [formGroup]="creditorForms[c.id]">
-        <div class="vm-cr-icon" [style.background]="c.color + '1A'">
-          <ion-icon [name]="c.iconName" [style.color]="c.color"></ion-icon>
-        </div>
-        <div class="vm-cr-info">
-          <span class="vm-cr-name">{{ c.name }}</span>
-          <span class="vm-cr-sub">CAE {{ c.cae * 100 | number:'1.0-0' }}%</span>
-        </div>
-        <div class="vm-cr-input-wrap">
-          <span class="vm-cr-prefix">$</span>
-          <input type="number" inputmode="numeric" placeholder="0"
-                 formControlName="payment" class="vm-cr-input">
-        </div>
-      </div>
-      <div class="vm-totals">
-        <div class="vm-total-row" *ngFor="let c of creditors">
-          <span>{{ c.name }}</span>
-          <span [style.color]="c.color">{{ store.budget().creditorPayments[c.id] | clp }}</span>
-        </div>
-        <div class="vm-total-row main">
-          <span>Total comprometido</span>
-          <span class="teal">{{ totalCommitted() | clp }}</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ SECCIÓN 3: REGISTRO DE DEUDA Y CUOTAS ══ -->
+  <!-- ══ SECCIÓN 2: SELECTOR EN CASCADA ══ -->
   <section class="vm-section">
     <p class="vm-section-label">
       <ion-icon name="receipt-outline"></ion-icon>
-      Registro de deuda y cuotas
+      Deudas y cuotas por acreedor
     </p>
 
-    <div *ngFor="let c of creditors">
-      <button class="vm-debt-toggle" (click)="toggleDebt(c.id)">
-        <div class="vm-cr-icon sm" [style.background]="c.color + '1A'">
-          <ion-icon [name]="c.iconName" [style.color]="c.color"></ion-icon>
+    <!-- Tarjetas de acreedores ya configurados -->
+    <div class="configured-list" *ngIf="configuredDebts().length > 0">
+      <div class="configured-card" *ngFor="let d of configuredDebts()">
+        <div class="cc-header">
+          <div class="cc-icon" [style.background]="creditorById(d.id).color + '1A'">
+            <ion-icon [name]="creditorById(d.id).iconName"
+                      [style.color]="creditorById(d.id).color"></ion-icon>
+          </div>
+          <div class="cc-info">
+            <span class="cc-name">{{ creditorById(d.id).name }}</span>
+            <span class="cc-payment">Cuota: {{ d.payment | clp }}/mes</span>
+          </div>
+          <button class="cc-remove" (click)="removeConfigured(d.id)"
+                  aria-label="Eliminar acreedor">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </button>
         </div>
-        <span>{{ c.name }}</span>
+
+        <!-- Barra de progreso si tiene cuotas -->
+        <div class="cc-progress" *ngIf="debtPct(d.form) > 0">
+          <div class="cc-prog-row">
+            <span class="cc-prog-label">
+              {{ paidLeft(d.form).paid }} de {{ d.form.value.totalInstallments }} cuotas
+            </span>
+            <span class="cc-prog-pct" [style.color]="creditorById(d.id).color">
+              {{ debtPct(d.form) }}%
+            </span>
+          </div>
+          <div class="cc-prog-track">
+            <div class="cc-prog-fill"
+                 [style.width]="debtPct(d.form) + '%'"
+                 [style.background]="creditorById(d.id).color">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SELECTOR PRINCIPAL ── -->
+    <div class="cascade-selector">
+
+      <!-- Trigger del dropdown -->
+      <button
+        class="cascade-trigger"
+        [class.open]="dropdownOpen()"
+        [class.disabled]="availableCreditors().length === 0"
+        (click)="toggleDropdown()"
+        [disabled]="availableCreditors().length === 0">
+        <ion-icon name="add-outline" class="trigger-icon"></ion-icon>
+        <span>
+          {{ availableCreditors().length === 0
+            ? 'Todos los acreedores configurados'
+            : 'Seleccionar acreedor' }}
+        </span>
         <ion-icon
-          [name]="showDebt(c.id) ? 'chevron-up-outline' : 'chevron-down-outline'"
-          class="toggle-chevron">
+          [name]="dropdownOpen() ? 'chevron-up-outline' : 'chevron-down-outline'"
+          class="trigger-chevron">
         </ion-icon>
       </button>
 
-      <div class="vm-debt-card" *ngIf="showDebt(c.id)" [formGroup]="debtForms[c.id]">
-        <div class="vm-field-grid">
-          <div class="vm-field">
-            <label class="vm-label">
-              <ion-icon name="card-outline"></ion-icon>
-              Monto total deuda
-            </label>
-            <div class="vm-input-wrap sm">
-              <span class="vm-prefix">$</span>
-              <input type="number" inputmode="numeric" placeholder="0"
-                     formControlName="totalAmount" class="vm-input">
-            </div>
+      <!-- Lista desplegable de opciones -->
+      <div class="cascade-dropdown" *ngIf="dropdownOpen()">
+        <button
+          class="cascade-option"
+          *ngFor="let c of availableCreditors()"
+          (click)="selectCreditor(c.id)">
+          <div class="opt-icon" [style.background]="c.color + '1A'">
+            <ion-icon [name]="c.iconName" [style.color]="c.color"></ion-icon>
           </div>
-          <div class="vm-field">
-            <label class="vm-label">
-              <ion-icon name="reorder-four-outline"></ion-icon>
-              Total cuotas
-            </label>
-            <div class="vm-input-wrap sm">
-              <input type="number" inputmode="numeric" placeholder="12"
-                     formControlName="totalInstallments" class="vm-input">
-              <span class="vm-suffix">ctas</span>
-            </div>
+          <div class="opt-info">
+            <span class="opt-name">{{ c.name }}</span>
+            <span class="opt-sub">CAE {{ c.cae * 100 | number:'1.0-0' }}%</span>
           </div>
+          <ion-icon name="chevron-forward-outline" class="opt-arrow"></ion-icon>
+        </button>
+      </div>
+
+      <!-- ── FORMULARIO EN CASCADA (aparece al elegir un acreedor) ── -->
+      <div class="cascade-form"
+           *ngIf="selectedCreditor() && activeCreditorObj() as cred">
+
+        <!-- Encabezado del acreedor seleccionado -->
+        <div class="cf-header">
+          <div class="cf-icon" [style.background]="cred.color + '1A'">
+            <ion-icon [name]="cred.iconName" [style.color]="cred.color"></ion-icon>
+          </div>
+          <div class="cf-title">
+            <span class="cf-name">{{ cred.name }}</span>
+            <span class="cf-cae">CAE {{ cred.cae * 100 | number:'1.0-0' }}%</span>
+          </div>
+          <button class="cf-cancel" (click)="cancelSelection()"
+                  aria-label="Cancelar selección">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </button>
         </div>
 
-        <div class="vm-field">
+        <!-- Campo: cuota mensual -->
+        <div class="vm-field" *ngIf="activePaymentForm() as pf" [formGroup]="pf">
           <label class="vm-label">
-            <ion-icon name="checkmark-outline"></ion-icon>
-            Cuotas ya pagadas
+            <ion-icon name="cash-outline"></ion-icon>
+            Cuota mensual
           </label>
           <div class="vm-input-wrap">
-            <input type="number" inputmode="numeric" placeholder="Ej: 3"
-                   formControlName="paidInstallments" class="vm-input">
-            <span class="vm-suffix">cuotas pagadas</span>
+            <span class="vm-prefix">$</span>
+            <input type="number" inputmode="numeric" placeholder="Ej: 50000"
+                   formControlName="payment" class="vm-input">
+            <span class="vm-suffix">CLP/mes</span>
           </div>
-          <p class="vm-field-error" *ngIf="debtForms[c.id].hasError('paidExceedsTotal')">
-            Las cuotas pagadas no pueden superar el total.
-          </p>
         </div>
 
-        <div class="vm-progress-block" *ngIf="debtPct(c.id) > 0">
-          <div class="vm-prog-header">
-            <span class="vm-prog-label">Progreso de pago</span>
-            <span class="vm-prog-pct" [style.color]="c.color">{{ debtPct(c.id) }}%</span>
-          </div>
-          <div class="vm-prog-track">
-            <div class="vm-prog-fill"
-                 [style.width]="debtPct(c.id) + '%'"
-                 [style.background]="c.color">
+        <!-- Divisor -->
+        <div class="cf-divider">
+          <span>Datos de la deuda <span class="optional-tag">(opcional)</span></span>
+        </div>
+
+        <!-- Campos de deuda en cascada -->
+        <div *ngIf="activeDebtForm() as df" [formGroup]="df">
+          <div class="vm-field-grid">
+            <div class="vm-field">
+              <label class="vm-label">
+                <ion-icon name="card-outline"></ion-icon>
+                Monto total
+              </label>
+              <div class="vm-input-wrap sm">
+                <span class="vm-prefix">$</span>
+                <input type="number" inputmode="numeric" placeholder="0"
+                       formControlName="totalAmount" class="vm-input">
+              </div>
+            </div>
+            <div class="vm-field">
+              <label class="vm-label">
+                <ion-icon name="reorder-four-outline"></ion-icon>
+                Total cuotas
+              </label>
+              <div class="vm-input-wrap sm">
+                <input type="number" inputmode="numeric" placeholder="12"
+                       formControlName="totalInstallments" class="vm-input">
+                <span class="vm-suffix">ctas</span>
+              </div>
             </div>
           </div>
-          <div class="vm-prog-detail">
-            <span>{{ paidLeft(c.id).paid }} pagada{{ paidLeft(c.id).paid !== 1 ? 's' : '' }}</span>
-            <span>{{ paidLeft(c.id).left }} restante{{ paidLeft(c.id).left !== 1 ? 's' : '' }}</span>
+
+          <div class="vm-field">
+            <label class="vm-label">
+              <ion-icon name="checkmark-outline"></ion-icon>
+              Cuotas ya pagadas
+            </label>
+            <div class="vm-input-wrap">
+              <input type="number" inputmode="numeric" placeholder="Ej: 3"
+                     formControlName="paidInstallments" class="vm-input">
+              <span class="vm-suffix">cuotas</span>
+            </div>
+            <p class="vm-field-error" *ngIf="df.hasError('paidExceedsTotal')">
+              Las cuotas pagadas no pueden superar el total.
+            </p>
+          </div>
+
+          <!-- Preview de progreso en tiempo real -->
+          <div class="cf-progress-preview" *ngIf="debtPct(df) > 0">
+            <div class="cpp-row">
+              <span class="cpp-label">Progreso</span>
+              <span class="cpp-pct" [style.color]="cred.color">{{ debtPct(df) }}%</span>
+            </div>
+            <div class="cpp-track">
+              <div class="cpp-fill"
+                   [style.width]="debtPct(df) + '%'"
+                   [style.background]="cred.color">
+              </div>
+            </div>
+            <div class="cpp-detail">
+              <span>{{ paidLeft(df).paid }} pagadas</span>
+              <span>{{ paidLeft(df).left }} restantes</span>
+            </div>
           </div>
         </div>
+
+        <!-- Botón confirmar acreedor -->
+        <button class="cf-confirm-btn" (click)="confirmCreditor()">
+          <ion-icon name="checkmark-outline"></ion-icon>
+          Confirmar {{ cred.name }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Totales si hay acreedores configurados -->
+    <div class="vm-totals" *ngIf="configuredDebts().length > 0">
+      <div class="vm-total-row" *ngFor="let d of configuredDebts()">
+        <span>{{ creditorById(d.id).name }}</span>
+        <span [style.color]="creditorById(d.id).color">{{ d.payment | clp }}</span>
+      </div>
+      <div class="vm-total-row main">
+        <span>Total comprometido</span>
+        <span class="teal">{{ totalCommitted() | clp }}</span>
       </div>
     </div>
   </section>

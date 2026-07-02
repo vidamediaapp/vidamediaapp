@@ -1,14 +1,18 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import {
+  ReactiveFormsModule, FormBuilder, FormGroup,
+  Validators, AbstractControl,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
   arrowBackOutline, walletOutline, cashOutline, storefrontOutline,
   cartOutline, businessOutline, cardOutline, receiptOutline,
   reorderFourOutline, checkmarkOutline, addOutline,
-  saveOutline, alertCircleOutline, checkmarkCircleOutline,
-  chevronDownOutline, chevronUpOutline,
+  saveOutline, checkmarkCircleOutline,
+  chevronDownOutline, chevronUpOutline, chevronForwardOutline,
+  closeCircleOutline,
 } from 'ionicons/icons';
 import {
   IonContent, IonHeader, IonToolbar, IonTitle,
@@ -35,14 +39,38 @@ export class PresupuestoPage {
 
   readonly creditors = CREDITORS;
 
-  incomeForm:     FormGroup;
-  creditorForms:  Record<CreditorId, FormGroup>;
-  debtForms:      Record<CreditorId, FormGroup>;
+  // ── Formulario de ingresos ────────────────────────────────────────
+  incomeForm: FormGroup;
 
-  saved        = signal(false);
-  showDebtFor  = signal<Set<CreditorId>>(new Set<CreditorId>());
+  // ── Selector en cascada ───────────────────────────────────────────
+  // Cuál acreedor está seleccionado actualmente en el selector
+  selectedCreditor = signal<CreditorId | null>(null);
 
-  // Lee del AppStore (mismo que usa home)
+  // Lista de deudas ya configuradas (pueden ser varias)
+  configuredDebts = signal<
+    Array<{ id: CreditorId; form: FormGroup; payment: number }>
+  >([]);
+
+  // ¿Está desplegado el dropdown de acreedores?
+  dropdownOpen = signal(false);
+
+  // Formulario activo (para el acreedor seleccionado)
+  activeDebtForm = signal<FormGroup | null>(null);
+  activePaymentForm = signal<FormGroup | null>(null);
+
+  // Acreedores ya configurados (para no mostrarlos de nuevo en el dropdown)
+  configuredIds = computed(() =>
+    new Set(this.configuredDebts().map(d => d.id)));
+
+  // Acreedores disponibles (no configurados aún)
+  availableCreditors = computed(() =>
+    this.creditors.filter(c => !this.configuredIds().has(c.id)));
+
+  // Acreedor activo como objeto completo
+  activeCreditorObj = computed(() =>
+    this.creditors.find(c => c.id === this.selectedCreditor()) ?? null);
+
+  // ── Store ─────────────────────────────────────────────────────────
   totalIncome      = this.store.totalIncome;
   totalCommitted   = this.store.totalCommitted;
   available        = this.store.available;
@@ -55,6 +83,8 @@ export class PresupuestoPage {
     return 'over';
   });
 
+  saved = signal(false);
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -64,8 +94,9 @@ export class PresupuestoPage {
       arrowBackOutline, walletOutline, cashOutline, storefrontOutline,
       cartOutline, businessOutline, cardOutline, receiptOutline,
       reorderFourOutline, checkmarkOutline, addOutline,
-      saveOutline, alertCircleOutline, checkmarkCircleOutline,
-      chevronDownOutline, chevronUpOutline,
+      saveOutline, checkmarkCircleOutline,
+      chevronDownOutline, chevronUpOutline, chevronForwardOutline,
+      closeCircleOutline,
     });
 
     this.incomeForm = this.fb.group({
@@ -73,83 +104,106 @@ export class PresupuestoPage {
       extras: [null, [Validators.min(0)]],
     });
 
-    this.creditorForms = {
-      falabella:   this.fb.group({ payment: [null, [Validators.min(0)]] }),
-      ripley:      this.fb.group({ payment: [null, [Validators.min(0)]] }),
-      cajaAndes:   this.fb.group({ payment: [null, [Validators.min(0)]] }),
-      bancoEstado: this.fb.group({ payment: [null, [Validators.min(0)]] }),
-    };
-
-    const debtGroup = () => this.fb.group({
-      totalAmount:       [null, [Validators.min(0)]],
-      totalInstallments: [null, [Validators.min(1)]],
-      paidInstallments:  [null, [Validators.min(0)]],
-    }, { validators: [this.paidNotExceedTotal] });
-
-    this.debtForms = {
-      falabella:   debtGroup(),
-      ripley:      debtGroup(),
-      cajaAndes:   debtGroup(),
-      bancoEstado: debtGroup(),
-    };
-
-    // Sincronizar ingresos → AppStore (home lo leerá automáticamente)
+    // Sincronizar ingresos → AppStore
     this.incomeForm.get('salary')!.valueChanges.subscribe(v =>
       this.store.setSalary(Number(v) || 0));
     this.incomeForm.get('extras')!.valueChanges.subscribe(v =>
       this.store.setExtras(Number(v) || 0));
+  }
 
-    // Sincronizar cuotas → AppStore
-    for (const c of CREDITORS) {
-      this.creditorForms[c.id].get('payment')!.valueChanges.subscribe(v =>
-        this.store.setCreditorPayment(c.id, Number(v) || 0));
+  // ── Selector en cascada ───────────────────────────────────────────
+
+  toggleDropdown(): void {
+    // Solo abrir si quedan acreedores disponibles
+    if (this.availableCreditors().length > 0) {
+      this.dropdownOpen.update(v => !v);
     }
+  }
+
+  selectCreditor(id: CreditorId): void {
+    this.selectedCreditor.set(id);
+    this.dropdownOpen.set(false);
+
+    // Crear formularios para este acreedor
+    this.activeDebtForm.set(this.fb.group({
+      totalAmount:       [null, [Validators.min(0)]],
+      totalInstallments: [null, [Validators.min(1)]],
+      paidInstallments:  [null, [Validators.min(0)]],
+    }, { validators: [this.paidNotExceedTotal] }));
+
+    this.activePaymentForm.set(this.fb.group({
+      payment: [null, [Validators.min(0)]],
+    }));
+  }
+
+  cancelSelection(): void {
+    this.selectedCreditor.set(null);
+    this.activeDebtForm.set(null);
+    this.activePaymentForm.set(null);
+  }
+
+  // Confirmar acreedor actual y agregar a la lista configurada
+  confirmCreditor(): void {
+    const id = this.selectedCreditor();
+    const debtForm = this.activeDebtForm();
+    const payForm  = this.activePaymentForm();
+    if (!id || !debtForm || !payForm) return;
+
+    const payment = Number(payForm.value.payment) || 0;
+    const f       = debtForm.value;
+
+    // Guardar en el store
+    this.store.setCreditorPayment(id, payment);
+
+    if (debtForm.valid && f.totalInstallments) {
+      const debt: DebtEntry = {
+        creditorId:        id,
+        totalAmount:       Number(f.totalAmount)       || 0,
+        totalInstallments: Number(f.totalInstallments) || 0,
+        paidInstallments:  Number(f.paidInstallments)  || 0,
+        monthlyPayment:    payment,
+      };
+      this.store.upsertDebt(debt);
+    }
+
+    // Agregar a la lista visible configurada
+    this.configuredDebts.update(list => [
+      ...list.filter(d => d.id !== id),
+      { id, form: debtForm, payment },
+    ]);
+
+    // Limpiar selección activa
+    this.cancelSelection();
+  }
+
+  removeConfigured(id: CreditorId): void {
+    this.configuredDebts.update(list => list.filter(d => d.id !== id));
+    this.store.setCreditorPayment(id, 0);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────
-  debtPct(id: CreditorId): number {
-    const f     = this.debtForms[id].value;
-    const total = Number(f.totalInstallments) || 0;
-    const paid  = Number(f.paidInstallments)  || 0;
+  debtPct(form: FormGroup): number {
+    const total = Number(form.value.totalInstallments) || 0;
+    const paid  = Number(form.value.paidInstallments)  || 0;
     return total === 0 ? 0 : Math.round((Math.min(paid, total) / total) * 100);
   }
 
-  paidLeft(id: CreditorId): { paid: number; left: number } {
-    const f     = this.debtForms[id].value;
-    const total = Number(f.totalInstallments) || 0;
-    const paid  = Math.min(Number(f.paidInstallments) || 0, total);
+  paidLeft(form: FormGroup): { paid: number; left: number } {
+    const total = Number(form.value.totalInstallments) || 0;
+    const paid  = Math.min(Number(form.value.paidInstallments) || 0, total);
     return { paid, left: total - paid };
   }
 
-  showDebt(id: CreditorId): boolean { return this.showDebtFor().has(id); }
-
-  toggleDebt(id: CreditorId): void {
-    this.showDebtFor.update(s => {
-      const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  creditorById(id: CreditorId) {
+    return this.creditors.find(c => c.id === id)!;
   }
 
-  // ── Guardar → escribe en AppStore → home se actualiza solo ────────
+  // ── Guardar todo ──────────────────────────────────────────────────
   onSave(): void {
-    for (const c of CREDITORS) {
-      if (this.showDebt(c.id) && this.debtForms[c.id].valid) {
-        const f = this.debtForms[c.id].value;
-        const debt: DebtEntry = {
-          creditorId:        c.id,
-          totalAmount:       Number(f.totalAmount)       || 0,
-          totalInstallments: Number(f.totalInstallments) || 0,
-          paidInstallments:  Number(f.paidInstallments)  || 0,
-          monthlyPayment:    this.store.budget().creditorPayments[c.id],
-        };
-        this.store.upsertDebt(debt);  // ← AppStore actualiza, home reacciona
-      }
-    }
     this.saved.set(true);
     setTimeout(() => {
       this.saved.set(false);
-      this.router.navigate(['/home']);  // vuelve al home con los datos reflejados
+      this.router.navigate(['/home']);
     }, 1200);
   }
 

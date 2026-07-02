@@ -1,79 +1,262 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>registro</ion-title>
+    <ion-title>Crear cuenta</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center">Crear Cuenta</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true">
+  <div class="reg-wrap">
 
-<ion-content class="ion-padding ion-text-center">
-  <div class="login-logo ion-margin-bottom">
-    <ion-icon name="person-add-outline" style="font-size: 96px; color: var(--ion-color-primary);"></ion-icon>
-  </div>
+    <!-- Logo -->
+    <div class="brand">
+      <div class="brand-icon">
+        <ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon>
+      </div>
+      <h1>Vida Media</h1>
+      <p>Crea tu cuenta para proteger tus finanzas</p>
+    </div>
 
-  <form [formGroup]="formularioregistro" (ngSubmit)="registrar()">
-    <ion-list lines="none">
-      
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="person-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="text" 
-          placeholder="Nombre completo" 
-          formControlName="nombre">
-        </ion-input>
-      </ion-item>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="mail-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="email" 
-          placeholder="Correo electrónico" 
-          inputmode="email"
-          formControlName="email">
-        </ion-input>
-      </ion-item>
-      <div class="error-container ion-text-start ion-padding-start" 
-           *ngIf="formularioregistro.get('email')?.touched && formularioregistro.get('email')?.invalid">
-        <ion-text color="danger"><small>Ingresa un correo electrónico válido.</small></ion-text>
+      <!-- ══ SECCIÓN: IDENTIFICACIÓN ══ -->
+      <div class="form-section">
+        <p class="form-section-label">
+          <ion-icon name="card-outline" aria-hidden="true"></ion-icon>
+          Identificación
+        </p>
+
+        <!-- RUT -->
+        <div class="vm-field">
+          <label class="vm-label" for="rut">
+            <ion-icon name="card-outline" aria-hidden="true"></ion-icon>
+            RUT o identificador
+          </label>
+          <div class="vm-input-wrap" [class.invalid]="error('rut')" [class.valid]="c['rut'].valid && c['rut'].touched">
+            <ion-icon name="card-outline" class="inp-icon" aria-hidden="true"></ion-icon>
+            <input
+              id="rut"
+              type="text"
+              inputmode="text"
+              placeholder="12.345.678-9"
+              formControlName="rut"
+              class="vm-input"
+              (input)="onRutInput($event)"
+              autocomplete="off"
+              maxlength="12">
+            <ion-icon
+              *ngIf="c['rut'].valid && c['rut'].touched"
+              name="checkmark-circle-outline"
+              class="valid-icon"
+              aria-hidden="true">
+            </ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('rut')" role="alert">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            {{ error('rut') }}
+          </p>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="vm-field">
+          <label class="vm-label" for="email">
+            <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+            Correo electrónico
+          </label>
+          <div class="vm-input-wrap" [class.invalid]="error('email')" [class.valid]="c['email'].valid && c['email'].touched">
+            <ion-icon name="mail-outline" class="inp-icon" aria-hidden="true"></ion-icon>
+            <input
+              id="email"
+              type="email"
+              inputmode="email"
+              placeholder="nombre@correo.cl"
+              formControlName="email"
+              class="vm-input"
+              autocomplete="email">
+            <ion-icon
+              *ngIf="c['email'].valid && c['email'].touched"
+              name="checkmark-circle-outline"
+              class="valid-icon"
+              aria-hidden="true">
+            </ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('email')" role="alert">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            {{ error('email') }}
+          </p>
+        </div>
       </div>
 
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="password" 
-          placeholder="Contraseña (mín. 6 caracteres)" 
-          formControlName="password">
-        </ion-input>
-      </ion-item>
+      <!-- ══ SECCIÓN: DATOS PERSONALES ══ -->
+      <div class="form-section">
+        <p class="form-section-label">
+          <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+          Datos personales
+        </p>
 
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="lock-check-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="password" 
-          placeholder="Confirmar contraseña" 
-          formControlName="confirmPassword">
-        </ion-input>
-      </ion-item>
-      <div class="error-container ion-text-start ion-padding-start" 
-           *ngIf="formularioregistro.hasError('mismatch') && formularioregistro.get('confirmPassword')?.touched">
-        <ion-text color="danger"><small>Las contraseñas no coinciden.</small></ion-text>
+        <!-- NOMBRE -->
+        <div class="vm-field">
+          <label class="vm-label" for="nombre">
+            <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+            Nombre
+          </label>
+          <div class="vm-input-wrap" [class.invalid]="error('nombre')" [class.valid]="c['nombre'].valid && c['nombre'].touched">
+            <input
+              id="nombre"
+              type="text"
+              inputmode="text"
+              placeholder="Ej: Camila"
+              formControlName="nombre"
+              class="vm-input no-icon"
+              (input)="onNameInput($event, 'nombre')"
+              autocomplete="given-name">
+            <ion-icon
+              *ngIf="c['nombre'].valid && c['nombre'].touched"
+              name="checkmark-circle-outline"
+              class="valid-icon"
+              aria-hidden="true">
+            </ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('nombre')" role="alert">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            {{ error('nombre') }}
+          </p>
+        </div>
+
+        <!-- APELLIDO PATERNO + MATERNO en grid -->
+        <div class="field-grid">
+          <div class="vm-field">
+            <label class="vm-label" for="apePat">Apellido paterno</label>
+            <div class="vm-input-wrap sm" [class.invalid]="error('apellidoPat')" [class.valid]="c['apellidoPat'].valid && c['apellidoPat'].touched">
+              <input
+                id="apePat"
+                type="text"
+                inputmode="text"
+                placeholder="Ej: Fuentes"
+                formControlName="apellidoPat"
+                class="vm-input no-icon"
+                (input)="onNameInput($event, 'apellidoPat')"
+                autocomplete="family-name">
+            </div>
+            <p class="vm-error sm" *ngIf="error('apellidoPat')" role="alert">
+              <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+              {{ error('apellidoPat') }}
+            </p>
+          </div>
+
+          <div class="vm-field">
+            <label class="vm-label" for="apeMat">Apellido materno <span class="optional">(opcional)</span></label>
+            <div class="vm-input-wrap sm" [class.invalid]="error('apellidoMat')" [class.valid]="c['apellidoMat'].valid && c['apellidoMat'].touched && c['apellidoMat'].value">
+              <input
+                id="apeMat"
+                type="text"
+                inputmode="text"
+                placeholder="Ej: Rojas"
+                formControlName="apellidoMat"
+                class="vm-input no-icon"
+                (input)="onNameInput($event, 'apellidoMat')"
+                autocomplete="additional-name">
+            </div>
+            <p class="vm-error sm" *ngIf="error('apellidoMat')" role="alert">
+              <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+              {{ error('apellidoMat') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- TELÉFONO -->
+        <div class="vm-field">
+          <label class="vm-label" for="telefono">
+            <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+            Teléfono
+          </label>
+          <div class="vm-input-wrap" [class.invalid]="error('telefono')" [class.valid]="c['telefono'].valid && c['telefono'].touched">
+            <ion-icon name="call-outline" class="inp-icon" aria-hidden="true"></ion-icon>
+            <input
+              id="telefono"
+              type="tel"
+              inputmode="tel"
+              placeholder="+56 9 1234 5678"
+              formControlName="telefono"
+              class="vm-input"
+              (input)="onPhoneInput($event)"
+              autocomplete="tel"
+              maxlength="16">
+            <ion-icon
+              *ngIf="c['telefono'].valid && c['telefono'].touched"
+              name="checkmark-circle-outline"
+              class="valid-icon"
+              aria-hidden="true">
+            </ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('telefono')" role="alert">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            {{ error('telefono') }}
+          </p>
+          <p class="vm-hint">Formato: +56 9 XXXX XXXX o 9 XXXX XXXX</p>
+        </div>
       </div>
 
-    </ion-list>
+      <!-- ══ SECCIÓN: CONTRASEÑA ══ -->
+      <div class="form-section">
+        <p class="form-section-label">
+          <ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon>
+          Contraseña
+        </p>
 
-    <ion-button expand="block" shape="round" type="submit" [disabled]="formularioregistro.invalid" class="ion-margin-top">
-      Registrarse
-    </ion-button>
-  </form>
+        <div class="vm-field">
+          <label class="vm-label" for="password">Contraseña</label>
+          <div class="vm-input-wrap" [class.invalid]="error('password')" [class.valid]="c['password'].valid && c['password'].touched">
+            <input
+              id="password"
+              [type]="showPass() ? 'text' : 'password'"
+              placeholder="Mínimo 8 caracteres"
+              formControlName="password"
+              class="vm-input no-icon"
+              autocomplete="new-password">
+            <button type="button" class="eye-btn" (click)="togglePass()" [attr.aria-label]="showPass() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <ion-icon [name]="showPass() ? 'eye-off-outline' : 'eye-outline'" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+          <p class="vm-error" *ngIf="error('password')" role="alert">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            {{ error('password') }}
+          </p>
+        </div>
 
-  <div class="ion-margin-top">
-    <p>¿Ya tienes una cuenta? <ion-text color="primary" routerLink="/login" style="cursor: pointer; font-weight: bold;">Inicia sesión</ion-text></p>
+        <div class="vm-field">
+          <label class="vm-label" for="passConfirm">Confirmar contraseña</label>
+          <div class="vm-input-wrap" [class.invalid]="error('passwordConfirm')" [class.valid]="c['passwordConfirm'].valid && c['passwordConfirm'].touched">
+            <input
+              id="passConfirm"
+              [type]="showPass() ? 'text' : 'password'"
+              placeholder="Repite tu contraseña"
+              formControlName="passwordConfirm"
+              class="vm-input no-icon"
+              autocomplete="new-password">
+          </div>
+          <p class="vm-error" *ngIf="error('passwordConfirm')" role="alert">
+            <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+            {{ error('passwordConfirm') }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Botón crear cuenta -->
+      <div class="submit-wrap">
+        <button type="submit" class="vm-submit-btn" [disabled]="loading()">
+          <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+          <ion-icon name="checkmark-circle-outline" *ngIf="!loading()" aria-hidden="true"></ion-icon>
+          {{ loading() ? 'Creando cuenta…' : 'Crear cuenta' }}
+        </button>
+      </div>
+
+      <!-- Link a login -->
+      <div class="login-row">
+        <span>¿Ya tienes cuenta?</span>
+        <a routerLink="/login">Iniciar sesión</a>
+      </div>
+
+    </form>
+
   </div>
 </ion-content>

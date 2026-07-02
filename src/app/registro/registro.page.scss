@@ -1,0 +1,258 @@
+// ── Tokens Vida Media ─────────────────────────────────────────────
+$bg-dark:   #0d1117;
+$bg-card:   #181c24;
+$border:    rgba(255, 255, 255, 0.07);
+$muted:     #6b7280;
+$text:      #e2e8f0;
+$teal:      #1D9E75;
+$teal-bg:   rgba(29, 158, 117, 0.12);
+$teal-dim:  rgba(29, 158, 117, 0.3);
+$danger:    #E24B4A;
+$danger-bg: rgba(226, 75, 74, 0.1);
+$danger-dim:rgba(226, 75, 74, 0.35);
+
+// ── Toolbar ───────────────────────────────────────────────────────
+ion-toolbar {
+  --background: #{$bg-dark};
+  --color: #e8f5e9;
+}
+
+// ── Contenedor principal ──────────────────────────────────────────
+.reg-wrap {
+  padding: 0 16px 40px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+// ── Logo / marca ──────────────────────────────────────────────────
+.brand {
+  text-align: center;
+  padding: 28px 0 24px;
+
+  .brand-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    border-radius: 16px;
+    background: $teal-bg;
+    border: 0.5px solid $teal-dim;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon { font-size: 28px; color: $teal; }
+  }
+
+  h1 {
+    color: #e8f5e9;
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+
+  p {
+    color: $muted;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// ── Secciones del formulario ──────────────────────────────────────
+.form-section {
+  background: $bg-card;
+  border-radius: 16px;
+  border: 0.5px solid $border;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.form-section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  ion-icon { font-size: 13px; }
+}
+
+// ── Campos ────────────────────────────────────────────────────────
+.vm-field {
+  margin-bottom: 12px;
+  &:last-child { margin-bottom: 0; }
+}
+
+.vm-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: $muted;
+  margin-bottom: 5px;
+  font-weight: 400;
+
+  ion-icon { font-size: 13px; }
+}
+
+.optional {
+  font-size: 10px;
+  color: rgba(107, 114, 128, 0.6);
+  margin-left: 2px;
+}
+
+// ── Wrapper del input ─────────────────────────────────────────────
+.vm-input-wrap {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid #2a2e35;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &:focus-within { border-color: $teal; }
+
+  &.invalid {
+    border-color: $danger-dim;
+    background: $danger-bg;
+  }
+
+  &.valid {
+    border-color: rgba(29, 158, 117, 0.4);
+  }
+
+  &.sm { border-radius: 9px; }
+}
+
+.inp-icon {
+  font-size: 16px;
+  color: $muted;
+  padding: 0 8px 0 12px;
+  flex-shrink: 0;
+}
+
+.valid-icon {
+  font-size: 16px;
+  color: $teal;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+
+.eye-btn {
+  background: none;
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: $muted;
+  flex-shrink: 0;
+  font-size: 17px;
+
+  &:active { color: $teal; }
+}
+
+// ── Input base ────────────────────────────────────────────────────
+.vm-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $text;
+  font-size: 14px;
+  padding: 11px 10px 11px 0;
+  font-family: var(--ion-font-family, sans-serif);
+  min-width: 0;
+
+  &.no-icon { padding-left: 12px; }
+
+  &::placeholder { color: #374151; }
+}
+
+// ── Grid de 2 columnas para apellidos ────────────────────────────
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  .vm-field { margin-bottom: 0; }
+  .vm-label  { font-size: 11px; }
+  .vm-input  { font-size: 13px; padding: 9px 8px 9px 10px; }
+}
+
+// ── Mensajes de error y hint ──────────────────────────────────────
+.vm-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: $danger;
+  margin: 5px 0 0 2px;
+  line-height: 1.4;
+  animation: fadeIn 0.15s ease;
+
+  ion-icon { font-size: 13px; flex-shrink: 0; }
+
+  &.sm { font-size: 10px; }
+}
+
+.vm-hint {
+  font-size: 10px;
+  color: rgba(107, 114, 128, 0.7);
+  margin: 4px 0 0 2px;
+}
+
+// ── Botón de envío ────────────────────────────────────────────────
+.submit-wrap {
+  margin: 4px 0 0;
+}
+
+.vm-submit-btn {
+  width: 100%;
+  background: $teal;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #04342C;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+
+  ion-icon  { font-size: 18px; }
+  ion-spinner { --color: #04342C; width: 18px; height: 18px; }
+
+  &:active   { background: #167a5b; }
+  &:disabled { background: rgba(29, 158, 117, 0.4); cursor: default; }
+}
+
+// ── Link a login ──────────────────────────────────────────────────
+.login-row {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: $muted;
+
+  a {
+    color: $teal;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 6px;
+
+    &:active { text-decoration: underline; }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
