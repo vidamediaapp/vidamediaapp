@@ -1,7 +1,9 @@
 
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from 'typeorm';
 import { Acreedor } from './acreedores';
 import { Usuario } from './usuario';
+import { Simulacion } from './simulaciones';
+import {Pago} from './pagos'
 
 @Entity({ name: 'deudas' })
 export class Deuda {
@@ -38,10 +40,15 @@ export class Deuda {
   porcentaje_pago_minimo!: number;
 
   @Column({ name: 'fecha_limite', type: 'date' })
-  fecha_limite!: Date;
+  fecha_limite: Date;
 
   @Column({ name: 'estado', type: 'varchar', length: 20, default: 'pendiente' })
-  estado!: string;
+  estado: string;
 
+@OneToMany(() => Simulacion, (simulaciones) => simulaciones.deuda)
+simulaciones!: Simulacion[];
 
+@OneToMany(() => Pago, (pago) => pago.deuda)
+pagos!: Pago[];
+    
 }

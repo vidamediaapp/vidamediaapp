@@ -1,0 +1,24 @@
+import { Router } from 'express';
+import {AcreedorController} from '../controllers/acreedor-controller';
+import {AcreedorService} from '../services/acreedor-service';
+import {AppDataSource} from '../db';
+import {Acreedor} from '../entities/acreedores';
+import {authenticate} from '../middlewares/auth';
+
+
+const router = Router();
+
+router.get('/', (req, res) => {
+  res.send('Acreedores routes');
+});
+
+router.post('/create', (req, res) => {
+
+  res.send('Crear acreedor');
+});
+
+router.get('/:id', (req, res) => {
+
+  res.send(`Obtener acreedor con ID: ${req.params.id}`);
+});
+export default router;
