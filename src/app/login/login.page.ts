@@ -1,66 +1,95 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router'; 
-import { 
-  IonContent, 
-  IonHeader, 
-  IonTitle, 
-  IonToolbar, 
-  IonIcon, 
-  IonList, 
-  IonItem, 
-  IonInput, 
-  IonNote, 
-  IonButton, 
-  IonText 
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  mailOutline, lockClosedOutline,
+  eyeOutline, eyeOffOutline,
+  shieldCheckmarkOutline, alertCircleOutline,
+} from 'ionicons/icons';
+import {
+  IonContent, IonHeader, IonToolbar, IonTitle,
+  IonIcon, IonSpinner,
 } from '@ionic/angular/standalone';
+
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
   standalone: true,
   imports: [
-    IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonIcon, 
-    IonList, 
-    IonItem, 
-    IonInput, 
-    IonNote, 
-    IonButton, 
-    IonText, 
-    CommonModule, 
-    FormsModule, 
-    ReactiveFormsModule
-  ]
+    CommonModule, ReactiveFormsModule, RouterLink,
+    IonContent, IonHeader, IonToolbar, IonTitle,
+    IonIcon, IonSpinner,
+  ],
+  templateUrl: './login.page.html',
+  styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage {
 
-  formulariologin!: FormGroup;
+  form = this.fb.group({
+    email:    ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+  });
 
-  constructor(private fb: FormBuilder, private router: Router) { }
+  loading   = signal(false);
+  showPass  = signal(false);
+  apiError  = signal<string | null>(null);
+  submitted = signal(false);
 
-  ngOnInit() {
-    this.formulariologin = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router,
+  ) {
+    addIcons({
+      mailOutline, lockClosedOutline,
+      eyeOutline, eyeOffOutline,
+      shieldCheckmarkOutline, alertCircleOutline,
     });
   }
 
-  ingresar() {
-    if (this.formulariologin.valid) {
-      console.log('Datos del formulario:', this.formulariologin.value);
-    } else {
-      this.formulariologin.markAllAsTouched();
-    }
+  get c() { return this.form.controls; }
+
+  emailError(): string | null {
+    const c = this.c['email'];
+    if (!c.touched && !this.submitted()) return null;
+    if (c.errors?.['required']) return 'Ingresa tu correo';
+    if (c.errors?.['email'])    return 'Correo inválido. Ej: nombre@correo.cl';
+    return null;
   }
 
-  irARegistro() {
-    this.router.navigate(['/registro']); 
+  passError(): string | null {
+    const c = this.c['password'];
+    if (!c.touched && !this.submitted()) return null;
+    if (c.errors?.['required'])   return 'Ingresa tu contraseña';
+    if (c.errors?.['minlength'])  return 'Mínimo 8 caracteres';
+    return null;
   }
 
+  togglePass(): void { this.showPass.update(v => !v); }
+
+  onSubmit(): void {
+    this.submitted.set(true);
+    this.apiError.set(null);
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
+
+    this.loading.set(true);
+
+    this.auth.login({
+      email:    this.form.value.email!,
+      password: this.form.value.password!,
+    }).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.apiError.set(err.message);
+      },
+    });
+  }
 }

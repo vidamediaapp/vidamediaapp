@@ -6,31 +6,24 @@
 
 <ion-content [fullscreen]="true">
 
-  <!-- ══════════════════════════════════════════════════════
-       ESTADO VACÍO — si no hay datos en presupuesto aún
-  ═══════════════════════════════════════════════════════ -->
+  <!-- Estado vacío -->
   <div class="empty-state" *ngIf="!hasData()">
     <ion-icon name="wallet-outline"></ion-icon>
     <h2>Aún no hay datos</h2>
-    <p>Ingresa tu presupuesto mensual para ver tu resumen financiero aquí.</p>
+    <p>Ingresa tu presupuesto mensual para ver tu resumen aquí.</p>
     <a routerLink="/presupuesto" class="empty-cta">
       <ion-icon name="chevron-forward-outline"></ion-icon>
       Ir a Presupuesto mensual
     </a>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════
-       CONTENIDO PRINCIPAL — cuando hay datos
-  ═══════════════════════════════════════════════════════ -->
   <ng-container *ngIf="hasData()">
 
-    <!-- BARRA DE LIBERTAD FINANCIERA -->
+    <!-- LIBERTAD FINANCIERA -->
     <div class="freedom-hero">
       <p class="hero-label">Barra de libertad financiera</p>
       <p class="hero-pct">{{ freedomPercent() }}%</p>
-      <p class="hero-sub">
-        {{ totalPaid() | clp }} pagados de {{ totalOriginal() | clp }}
-      </p>
+      <p class="hero-sub">{{ totalPaid() | clp }} pagados de {{ totalOriginal() | clp }}</p>
       <div class="freedom-track">
         <div class="freedom-fill" [style.width]="freedomPercent() + '%'"></div>
       </div>
@@ -42,12 +35,9 @@
       </div>
     </div>
 
-    <!-- RESUMEN DE INGRESOS vs COMPROMETIDO -->
+    <!-- RESUMEN DEL MES -->
     <div class="section-wrap">
-      <p class="section-label">
-        <ion-icon name="wallet-outline"></ion-icon>
-        Resumen del mes
-      </p>
+      <p class="section-label"><ion-icon name="wallet-outline"></ion-icon>Resumen del mes</p>
       <ion-card class="vm-card">
         <ion-card-content>
           <div class="budget-grid">
@@ -72,10 +62,7 @@
 
     <!-- RACHA DE PAGOS -->
     <div class="section-wrap">
-      <p class="section-label">
-        <ion-icon name="flame-outline"></ion-icon>
-        Racha de pagos
-      </p>
+      <p class="section-label"><ion-icon name="flame-outline"></ion-icon>Racha de pagos</p>
       <div class="streak-card">
         <div class="streak-num-col">
           <span class="streak-num">{{ streak().currentStreak }}</span>
@@ -84,37 +71,31 @@
         <div class="streak-right">
           <p class="streak-sub">Últimos {{ streak().months.length }} meses</p>
           <div class="streak-dots">
-            <div
-              class="streak-dot"
-              *ngFor="let m of streak().months"
-              [class.on-time]="m.onTime"
-              [class.missed]="!m.onTime">
+            <div class="streak-dot"
+                 *ngFor="let m of streak().months"
+                 [class.on-time]="m.onTime"
+                 [class.missed]="!m.onTime">
               {{ m.label }}
             </div>
           </div>
-          <p class="streak-record">
-            Mejor racha: <strong>{{ streak().longestStreak }} meses</strong>
-          </p>
+          <p class="streak-record">Mejor racha: <strong>{{ streak().longestStreak }} meses</strong></p>
         </div>
       </div>
     </div>
 
-    <!-- DEUDAS REGISTRADAS EN PRESUPUESTO -->
-    <div class="section-wrap" *ngIf="debts().debts.length > 0">
-      <p class="section-label">
-        <ion-icon name="business-outline"></ion-icon>
-        Mis deudas activas
-      </p>
+    <!-- DEUDAS ACTIVAS -->
+    <div class="section-wrap" *ngIf="debts().length > 0">
+      <p class="section-label"><ion-icon name="business-outline"></ion-icon>Mis deudas activas</p>
 
       <ion-card class="vm-card">
         <ion-card-content>
-          <div
-            class="debt-row"
-            *ngFor="let d of debts().debts; let last = last"
-            [class.no-border]="last">
+          <div class="debt-row"
+               *ngFor="let d of debts(); let last = last"
+               [class.no-border]="last">
 
             <div class="debt-icon" [style.background]="creditorColor(d.creditorId) + '1A'">
-              <ion-icon [name]="creditorIcon(d.creditorId)" [style.color]="creditorColor(d.creditorId)"></ion-icon>
+              <ion-icon [name]="creditorIcon(d.creditorId)"
+                        [style.color]="creditorColor(d.creditorId)"></ion-icon>
             </div>
 
             <div class="debt-info">
@@ -122,34 +103,38 @@
                 <span class="debt-name">{{ creditorName(d.creditorId) }}</span>
                 <button class="cae-link" (click)="toggleCaePopover()">¿Qué es CAE?</button>
               </div>
+              <!-- Usa los nuevos campos del modelo Deuda -->
               <span class="debt-detail">
-                {{ d.paidInstallments }}/{{ d.totalInstallments }} cuotas ·
-                cuota mensual {{ d.monthlyPayment | clp }}
+                Saldo: {{ d.saldo_pendiente | clp }} ·
+                Vence: {{ d.fecha_limite }} ·
+                <span class="estado-pill" [style.color]="d.estado === 'vencida' ? '#E24B4A' : d.estado === 'pagada' ? '#1D9E75' : '#378ADD'">
+                  {{ d.estado }}
+                </span>
               </span>
               <div class="debt-track">
-                <div
-                  class="debt-fill"
-                  [style.width]="store.debtPct(d) + '%'"
-                  [style.background]="creditorColor(d.creditorId)">
+                <div class="debt-fill"
+                     [style.width]="debtPct(d) + '%'"
+                     [style.background]="creditorColor(d.creditorId)">
                 </div>
               </div>
             </div>
 
             <div class="debt-amount">
-              <span class="debt-balance">{{ d.totalAmount | clp }}</span>
+              <!-- monto_original en vez de totalAmount -->
+              <span class="debt-balance">{{ d.monto_original | clp }}</span>
               <span class="debt-pct" [style.color]="creditorColor(d.creditorId)">
-                {{ store.debtPct(d) }}% pagado
+                {{ debtPct(d) }}% pagado
               </span>
             </div>
           </div>
 
-          <!-- Popover educativo CAE -->
+          <!-- Popover CAE -->
           <div class="edu-popover" *ngIf="showCaePopover()">
             <ion-icon name="information-circle-outline"></ion-icon>
             <div>
               <strong>¿Qué es el CAE?</strong>
               El Costo Anual Equivalente incluye tasa, seguros y comisiones.
-              Un 44% significa que la deuda crece $44.000 por cada $100.000 al año sin abonos.
+              Compara siempre por CAE, no solo por la tasa nominal.
             </div>
             <button (click)="toggleCaePopover()">✕</button>
           </div>
@@ -157,7 +142,7 @@
       </ion-card>
     </div>
 
-    <!-- LINK RÁPIDO A PRESUPUESTO -->
+    <!-- LINK A PRESUPUESTO -->
     <div class="section-wrap">
       <a routerLink="/presupuesto" class="edit-budget-link">
         <ion-icon name="wallet-outline"></ion-icon>
@@ -168,11 +153,7 @@
 
     <!-- CONVERSOR UF -->
     <div class="section-wrap" style="padding-bottom: 32px;">
-      <p class="section-label">
-        <ion-icon name="calculator-outline"></ion-icon>
-        Conversor UF a pesos
-      </p>
-
+      <p class="section-label"><ion-icon name="calculator-outline"></ion-icon>Conversor UF a pesos</p>
       <ion-card class="vm-card uf-card">
         <ion-card-content>
           <div class="uf-rate-row">
@@ -212,5 +193,4 @@
     </div>
 
   </ng-container>
-
 </ion-content>

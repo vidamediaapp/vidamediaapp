@@ -30,22 +30,19 @@ import { ClpPipe } from '../shared/pipes/clp.pipe';
 })
 export class HomePage {
 
-  // ── Todo viene del AppStore (misma instancia que usa presupuesto) ──
+  // ── Todo viene del AppStore ───────────────────────────────────────
   freedomPercent = this.store.freedomPercent;
   totalPaid      = this.store.totalPaid;
   totalOriginal  = this.store.totalOriginal;
-  totalCurrent   = this.store.totalCurrent;
   achievements   = this.store.achievements;
   streak         = this.store.streak;
   distribution   = this.store.distribution;
-
-  // Ingresos y disponible (vienen del presupuesto)
   totalIncome    = this.store.totalIncome;
   totalCommitted = this.store.totalCommitted;
   available      = this.store.available;
-
-  // Deudas activas registradas en presupuesto
-  debts = this.store.budget;
+  hasData        = this.store.hasData;
+  debts          = computed(() => this.store.budget().debts);
+  nextDue        = this.store.nextDue;
 
   availableClass = computed(() => {
     const pct = this.store.availablePercent();
@@ -64,12 +61,7 @@ export class HomePage {
     return (v != null && v > 0) ? this.cmf.toPesos(v) : null;
   });
 
-  // ── UI ─────────────────────────────────────────────────────────────
   showCaePopover = signal(false);
-
-  // ¿El presupuesto tiene datos ingresados?
-  hasData = computed(() =>
-    this.store.budget().salary > 0 || this.store.budget().debts.length > 0);
 
   constructor(public store: AppStore, public cmf: CmfService) {
     addIcons({
@@ -91,20 +83,10 @@ export class HomePage {
     this.showCaePopover.update(v => !v);
   }
 
-  progressOf(current: number, original: number): number {
-    if (original === 0) return 0;
-    return (original - current) / original;
-  }
-
-  creditorColor(id: string): string {
-    return this.store.creditors.find(c => c.id === id)?.color ?? '#1D9E75';
-  }
-
-  creditorIcon(id: string): string {
-    return this.store.creditors.find(c => c.id === id)?.iconName ?? 'business-outline';
-  }
-
-  creditorName(id: string): string {
-    return this.store.creditors.find(c => c.id === id)?.name ?? id;
-  }
+  // ── Helpers de deuda ─────────────────────────────────────────────
+  // Usa los helpers del store que ya conocen el nuevo modelo DebtEntry
+  creditorName(id: string):  string { return this.store.creditorName(id);  }
+  creditorColor(id: string): string { return this.store.creditorColor(id); }
+  creditorIcon(id: string):  string { return this.store.creditorIcon(id);  }
+  debtPct(debt: any):        number { return this.store.debtPct(debt);     }
 }
