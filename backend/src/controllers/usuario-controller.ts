@@ -1,26 +1,30 @@
-import {Request, Response} from 'express'
-import { UsuarioService } from '../services/usuario-service'
+import { Request, Response } from 'express';
+import { UsuarioService } from '../services/usuario-service';
 
 export class UsuarioController {
     constructor(private usuarioService: UsuarioService) {}
 
-    async obtenerTodos(req: Request, res:Response): Promise<void> {
+    /**
+     * GET /api/usuarios (Solo administración)
+     */
+    async obtenerTodos(req: Request, res: Response): Promise<void> {
         try {
             const usuarios = await this.usuarioService.obtenerTodos();
             res.status(200).json({
-                success:true,
+                success: true,
                 data: usuarios
             });
-        } catch (error){
-            console.error ('Error al obtener usuarios', error);
+        } catch (error) {
+            console.error('Error al obtener usuarios', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener usuarios'
             });
         }
-   }
+    }
 
-    async obtenerUsuarioPorId(req: Request<{id: string}>, res: Response): Promise<void> { 
+
+    async obtenerUsuarioPorId(req: Request<{ id: string }>, res: Response): Promise<void> {
         try {
             const { id } = req.params;
             const usuario = await this.usuarioService.obtenerUsuarioPorId(id);
@@ -46,7 +50,8 @@ export class UsuarioController {
         }
     }
 
-async actualizarPerfil(req: Request, res: Response): Promise<void> {
+ 
+    async actualizarPerfil(req: Request, res: Response): Promise<void> {
         try {
             const usuarioId = req.user?.id;
             if (!usuarioId) {
@@ -79,7 +84,6 @@ async actualizarPerfil(req: Request, res: Response): Promise<void> {
         }
     }
 
-   
     async cambiarPassword(req: Request, res: Response): Promise<void> {
         try {
             const usuarioId = req.user?.id;
@@ -143,8 +147,3 @@ async actualizarPerfil(req: Request, res: Response): Promise<void> {
         }
     }
 }
-    
-
-
-
-

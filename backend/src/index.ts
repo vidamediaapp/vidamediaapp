@@ -1,4 +1,7 @@
 import 'reflect-metadata';
+import dotenv from 'dotenv';
+dotenv.config();  
+
 import app from './app';
 import { AppDataSource } from './db';
 
@@ -6,10 +9,13 @@ async function main() {
     try {
         await AppDataSource.initialize();
         console.log('Conexión a PostgreSQL establecida');
-        console.log('Servidor corriendo en http://localhost:3000');
-        app.listen(3000); 
+        
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Servidor corriendo en http://localhost:${PORT}`);
+        });
     } catch (error) {
-        console.error('Error al conectar a la base de datos:', error);
+        console.error('Error al iniciar el servidor:', error);
     }
 }
 

@@ -1,18 +1,14 @@
-import express from 'express';
-const router = express.Router();
+import { Router } from 'express';
+import { authenticate } from '../middlewares/auth';
+import { DeudaController } from '../controllers/deuda-controller';
 
-router.get('/', (req, res) => {
-  res.send('Deuda routes');
-});
+const router = Router();
+const deudaController = new DeudaController();
 
-router.post('/create', (req, res) => {
-
-  res.send('Crear deuda');
-});
-
-router.get('/:id', (req, res) => {
-
-  res.send(`Obtener deuda con ID: ${req.params.id}`);
-});
+router.get('/', authenticate, deudaController.obtenerDeudas.bind(deudaController));
+router.get('/:id', authenticate, deudaController.obtenerDeudaPorId.bind(deudaController));
+router.post('/', authenticate, deudaController.crearDeuda.bind(deudaController));
+router.put('/:id', authenticate, deudaController.actualizarDeuda.bind(deudaController));
+router.delete('/:id', authenticate, deudaController.eliminarDeuda.bind(deudaController));
 
 export default router;

@@ -1,18 +1,10 @@
-import express from 'express';
-const router = express.Router();
+import { Router } from 'express';
+import { authenticate } from '../middlewares/auth';
+import { SimulacionController } from '../controllers/simulacion-controller';
 
-router.get('/', (req, res) => {
-  res.send('Simulaciones routes');
-});
+const router = Router();
+const simulacionController = new SimulacionController();
 
-router.post('/create', (req, res) => {
-
-  res.send('Crear simulación');
-});
-
-router.get('/:id', (req, res) => {
-
-  res.send(`Obtener simulación con ID: ${req.params.id}`);
-}); 
+router.post('/', authenticate, simulacionController.simular.bind(simulacionController));
 
 export default router;

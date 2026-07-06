@@ -1,32 +1,35 @@
-
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Acreedor } from './acreedores';
 import { Usuario } from './usuario';
 import { Simulacion } from './simulaciones';
-import {Pago} from './pagos'
+import { Pago } from './pagos';
+import { Presupuesto } from './presupuesto';
 
 @Entity({ name: 'deudas' })
 export class Deuda {
-
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => Usuario, (usuario) => usuario.deudas, { 
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-  })
-  @JoinColumn({ name: 'id_usuario' })  
+  // ── Relaciones ────────────────────────────────────────
+  @ManyToOne(() => Usuario, (usuario) => usuario.deudas, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'id_usuario' })
   usuario!: Usuario;
 
-
-  @ManyToOne(() => Acreedor, (acreedor) => acreedor.deudas, { 
-    onDelete: 'RESTRICT',
-    onUpdate: 'CASCADE'
-  })
-  @JoinColumn({ name: 'id_acreedor' })  
+  @ManyToOne(() => Acreedor, (acreedor) => acreedor.deudas, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'id_acreedor' })
   acreedor!: Acreedor;
 
+  @ManyToOne(() => Presupuesto, (presupuesto) => presupuesto.deudas, { nullable: true })
+  @JoinColumn({ name: 'id_presupuesto' })
+  presupuesto!: Presupuesto | null;
 
+  @OneToMany(() => Pago, (pago) => pago.deuda)
+  pagos!: Pago[];
+
+  @OneToMany(() => Simulacion, (simulacion) => simulacion.deuda)
+  simulaciones!: Simulacion[];
+
+  // ── Datos de la deuda ──────────────────────────────
   @Column({ name: 'monto_original', type: 'decimal', precision: 12, scale: 2 })
   monto_original!: number;
 
@@ -40,15 +43,37 @@ export class Deuda {
   porcentaje_pago_minimo!: number;
 
   @Column({ name: 'fecha_limite', type: 'date' })
-  fecha_limite: Date;
+  fecha_limite!: Date;
 
   @Column({ name: 'estado', type: 'varchar', length: 20, default: 'pendiente' })
-  estado: string;
+  estado!: string;
 
-@OneToMany(() => Simulacion, (simulaciones) => simulaciones.deuda)
-simulaciones!: Simulacion[];
+  @Column({ name: 'total_cuotas', type: 'int', default: 0 })
+  totalCuotas!: number;
 
-@OneToMany(() => Pago, (pago) => pago.deuda)
-pagos!: Pago[];
-    
+  @Column({ name: 'cuotas_pagadas', type: 'int', default: 0 })
+  cuotasPagadas!: number;
+
+
+  @Column({ name: 'cuotas_sin_interes', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  cuotas_sin_interes!: number;
+
+  @Column({ name: 'mantencion', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  mantencion!: number;
+
+  @Column({ name: 'seguros', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  seguros!: number;
+
+  @Column({ name: 'comisiones', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  comisiones!: number;
+
+  @Column({ name: 'intereses_acumulados', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  intereses_acumulados!: number;
+
+  // ── Auditoría ──────────────────────────────────────────
+  @CreateDateColumn({ name: 'creado_en' })
+  creadoEn!: Date;
+
+  @UpdateDateColumn({ name: 'actualizado_en' })
+  actualizadoEn!: Date;
 }

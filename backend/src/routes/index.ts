@@ -14,6 +14,7 @@ router.use('/deudas', deudasRoutes);
 router.use('/pagos', pagosRoutes);
 router.use('/presupuesto', presupuestosRoutes);
 router.use('/simulaciones', simulacionesRoutes);
+router.use('/auth', usuariosRoutes);
 router.use('/usuarios', usuariosRoutes);
 
 

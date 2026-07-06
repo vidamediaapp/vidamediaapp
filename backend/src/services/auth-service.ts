@@ -9,6 +9,7 @@ interface RegisterData {
   nombre: string;
   apaterno: string;
   amaterno: string;
+  rut: string;
   telefono: string;
 }
 
@@ -39,7 +40,9 @@ export class AuthService {
             nombre: data.nombre,
             apaterno: data.apaterno,
             amaterno: data.amaterno,
-            telefono: data.telefono
+            rut: data.rut,
+            telefono: data.telefono,
+  
         });
         return this.userRepository.save(nuevoUsuario);
     }

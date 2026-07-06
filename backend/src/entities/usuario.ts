@@ -26,8 +26,14 @@ export class Usuario {
   @Column({name: "amaterno", length: 50})
   amaterno: string;
 
+  @Column({ name: 'rut', length: 12, unique: true, nullable: true })
+  rut!: string;
+
   @Column({name: "telefono", nullable: true,length: 20})
   telefono: string;
+
+  @Column({ name: 'ingreso', type: 'decimal', precision: 12, scale: 2, nullable: true })
+  monthlyIncome!: number; 
 
   @CreateDateColumn({name: "creado_en"})
   creadoen: Date;

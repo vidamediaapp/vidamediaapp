@@ -1,12 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Usuario } from './usuario';
+import { Deuda } from './deudas';
 
 @Entity({ name: 'presupuestos' })
 export class Presupuesto {
-
   @PrimaryGeneratedColumn('uuid')
   id!: string;
-
 
   @ManyToOne(() => Usuario, (usuario) => usuario.presupuestos, {
     onDelete: 'CASCADE',
@@ -16,11 +15,10 @@ export class Presupuesto {
   usuario!: Usuario;
 
   @Column({ name: 'mes', type: 'int' })
-  mes!: number; // 1-12
+  mes!: number;
 
   @Column({ name: 'año', type: 'int' })
   año!: number;
-
 
   @Column({ name: 'salario', type: 'decimal', precision: 12, scale: 2, default: 0 })
   salario!: number;
@@ -31,20 +29,12 @@ export class Presupuesto {
   @Column({ name: 'pagos_planificados', type: 'jsonb', default: {} })
   pagosPlanificados!: Record<string, number>;
 
-
-  @Column({ name: 'deudas_planificadas', type: 'jsonb', default: [] })
-  deudasPlanificadas!: {
-    creditorId: string;
-    totalAmount: number;
-    totalInstallments: number;
-    paidInstallments: number;
-    monthlyPayment: number;
-  }[];
-
-
   @CreateDateColumn({ name: 'creado_en' })
   creadoEn!: Date;
 
   @UpdateDateColumn({ name: 'actualizado_en' })
   actualizadoEn!: Date;
+
+  @OneToMany(() => Deuda, (deuda) => deuda.presupuesto)
+  deudas!: Deuda[];
 }
