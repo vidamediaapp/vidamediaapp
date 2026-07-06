@@ -1,33 +1,24 @@
 import { Injectable, signal, computed } from '@angular/core';
-import {
-  BudgetMonth, DebtEntry, StreakInfo,
-  Achievement, CreditorId,
-} from '../models/app.model';
-import { CREDITORS } from './creditors.seed';
+import { BudgetMonth, DebtEntry, Achievement, StreakInfo } from '../models/app.model';
+import { CREDITORS_SEED } from './creditors.seed';
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
 
-  readonly creditors = CREDITORS;
+  readonly creditors = CREDITORS_SEED;
 
-  // ── Estado base ────────────────────────────────────────────────
-  // Todo lo que escribe presupuesto.page.ts vive aquí.
-  // home.page.ts solo lee — nunca escribe directamente.
   private readonly _budget = signal<BudgetMonth>({
     salary: 0,
     extras: 0,
-    creditorPayments: {
-      falabella:   0,
-      ripley:      0,
-      cajaAndes:   0,
-      bancoEstado: 0,
-    },
+    creditorPayments: {},
     debts: [],
   });
 
-  // ── Lectura pública del presupuesto ───────────────────────────
+  private readonly _paymentsCount = signal<number>(0);
+
   readonly budget = this._budget.asReadonly();
 
+  // ── Presupuesto ───────────────────────────────────────────────────
   readonly totalIncome = computed(() =>
     this._budget().salary + this._budget().extras);
 
@@ -42,59 +33,38 @@ export class AppStore {
     return inc > 0 ? Math.round((this.available() / inc) * 100) : 0;
   });
 
-  // ── Datos derivados para el HOME ──────────────────────────────
-  // Estas propiedades calculan todo desde el presupuesto ingresado.
-
-  /** Deuda total original: suma de todos los montos registrados */
+  // ── Totales de deuda (para home) ──────────────────────────────────
   readonly totalOriginal = computed(() =>
-    this._budget().debts.reduce((s, d) => s + d.totalAmount, 0));
+    this._budget().debts.reduce((s, d) => s + d.monto_original, 0));
 
-  /** Deuda ya pagada: cuotas pagadas × cuota mensual */
   readonly totalPaid = computed(() =>
-    this._budget().debts.reduce((s, d) => {
-      const cuotaVal = d.totalInstallments > 0
-        ? d.totalAmount / d.totalInstallments
-        : 0;
-      return s + d.paidInstallments * cuotaVal;
-    }, 0));
+    this._budget().debts.reduce((s, d) =>
+      s + (d.monto_original - d.saldo_pendiente), 0));
 
-  /** Saldo pendiente actual */
   readonly totalCurrent = computed(() =>
-    this.totalOriginal() - this.totalPaid());
+    this._budget().debts.reduce((s, d) => s + d.saldo_pendiente, 0));
 
-  /** Porcentaje pagado (barra de libertad financiera) */
   readonly freedomPercent = computed(() => {
     const orig = this.totalOriginal();
     return orig > 0 ? Math.round((this.totalPaid() / orig) * 100) : 0;
   });
 
-  /** Distribución por acreedor para el gráfico */
-  readonly distribution = computed(() => {
-    const debts = this._budget().debts;
-    const total = this.totalCurrent();
-    return debts.map(d => {
-      const cuotaVal  = d.totalInstallments > 0 ? d.totalAmount / d.totalInstallments : 0;
-      const pagado    = d.paidInstallments * cuotaVal;
-      const balance   = Math.max(0, d.totalAmount - pagado);
-      const creditor  = CREDITORS.find(c => c.id === d.creditorId)!;
+  // ── Distribución por acreedor (para gráfico) ──────────────────────
+  readonly distribution = computed(() =>
+    this._budget().debts.map(d => {
+      const cred = CREDITORS_SEED.find(c => c.id === d.creditorId);
+      const balance = d.saldo_pendiente;
+      const total   = this.totalCurrent();
       return {
-        name:    creditor.name,
-        color:   creditor.color,
+        name:    cred?.nombre ?? d.creditorId,
+        color:   cred?.color  ?? '#6b7280',
         balance,
         percent: total > 0 ? Math.round((balance / total) * 100) : 0,
       };
-    });
-  });
+    }),
+  );
 
-  /** Próximo vencimiento (deuda con día de vencimiento más cercano) */
-  readonly nextDue = computed(() => {
-    const debts = this._budget().debts;
-    if (debts.length === 0) return null;
-    // Usa la cuota mensual del acreedor como referencia
-    return debts[0];
-  });
-
-  // ── Racha de pagos (fija por ahora, en el futuro viene del backend) ──
+  // ── Racha de pagos ────────────────────────────────────────────────
   readonly streak = computed<StreakInfo>(() => {
     const months = [
       { label: 'ENE', onTime: true  },
@@ -112,39 +82,33 @@ export class AppStore {
     return { currentStreak: current, longestStreak: longest, months };
   });
 
-  // ── Logros: se calculan desde los datos reales del presupuesto ──
+  // ── Logros ────────────────────────────────────────────────────────
   readonly achievements = computed<Achievement[]>(() => {
-    const streak     = this.streak();
-    const hasDebts   = this._budget().debts.length > 0;
-    const hasIncome  = this._budget().salary > 0;
-    const anyPaidOff = this._budget().debts.some(
-      d => d.paidInstallments >= d.totalInstallments && d.totalInstallments > 0);
+    const streak   = this.streak();
+    const hasData  = this._budget().debts.length > 0 && this._budget().salary > 0;
+    const paidOff  = this._budget().debts.some(d => d.saldo_pendiente === 0);
 
     return [
-      {
-        label: '1er registro',
-        icon:  'medal-outline',
-        earned: hasDebts && hasIncome,
-      },
-      {
-        label: '3 meses',
-        icon:  'flame-outline',
-        earned: streak.currentStreak >= 3,
-      },
-      {
-        label: 'Deuda saldada',
-        icon:  'trophy-outline',
-        earned: anyPaidOff,
-      },
-      {
-        label: 'Año sin mora',
-        icon:  'star-outline',
-        earned: streak.longestStreak >= 12,
-      },
+      { label: '1er registro', icon: 'medal-outline',   earned: hasData },
+      { label: '3 meses',      icon: 'flame-outline',   earned: streak.currentStreak >= 3 },
+      { label: 'Deuda saldada',icon: 'trophy-outline',  earned: paidOff },
+      { label: 'Año sin mora', icon: 'star-outline',    earned: streak.longestStreak >= 12 },
     ];
   });
 
-  // ── Mutaciones (solo las llama presupuesto.page.ts) ────────────
+  // ── Próximo vencimiento ───────────────────────────────────────────
+  readonly nextDue = computed(() => {
+    const debts = this._budget().debts.filter(d => d.estado !== 'pagada');
+    if (debts.length === 0) return null;
+    return [...debts].sort((a, b) =>
+      new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime())[0];
+  });
+
+  // ── ¿Hay datos ingresados? ────────────────────────────────────────
+  readonly hasData = computed(() =>
+    this._budget().salary > 0 || this._budget().debts.length > 0);
+
+  // ── Mutaciones ────────────────────────────────────────────────────
   setSalary(v: number): void {
     this._budget.update(b => ({ ...b, salary: v }));
   }
@@ -153,7 +117,7 @@ export class AppStore {
     this._budget.update(b => ({ ...b, extras: v }));
   }
 
-  setCreditorPayment(id: CreditorId, v: number): void {
+  setCreditorPayment(id: string, v: number): void {
     this._budget.update(b => ({
       ...b,
       creditorPayments: { ...b.creditorPayments, [id]: v },
@@ -170,12 +134,36 @@ export class AppStore {
     });
   }
 
-  // ── Helpers ────────────────────────────────────────────────────
+  removeDebt(creditorId: string): void {
+    this._budget.update(b => ({
+      ...b,
+      debts: b.debts.filter(d => d.creditorId !== creditorId),
+    }));
+    this.setCreditorPayment(creditorId, 0);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────
   debtPct(debt: DebtEntry): number {
-    if (debt.totalInstallments === 0) return 0;
+    if (debt.monto_original === 0) return 0;
     return Math.round(
-      (Math.min(debt.paidInstallments, debt.totalInstallments) / debt.totalInstallments) * 100,
+      ((debt.monto_original - debt.saldo_pendiente) / debt.monto_original) * 100,
     );
+  }
+
+  creditorById(id: string) {
+    return CREDITORS_SEED.find(c => c.id === id);
+  }
+
+  creditorName(id: string): string {
+    return this.creditorById(id)?.nombre ?? id;  // ← "nombre" no "name"
+  }
+
+  creditorColor(id: string): string {
+    return this.creditorById(id)?.color ?? '#6b7280';
+  }
+
+  creditorIcon(id: string): string {
+    return this.creditorById(id)?.iconName ?? 'business-outline';
   }
 
   formatClp(n: number): string {

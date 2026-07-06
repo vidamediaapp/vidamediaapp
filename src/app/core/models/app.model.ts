@@ -1,28 +1,62 @@
-// ── Acreedores ────────────────────────────────────────────────────
-export type CreditorId = 'falabella' | 'ripley' | 'cajaAndes' | 'bancoEstado';
+// ── Tipos base ────────────────────────────────────────────────────
+export type EstadoDeuda = 'pendiente' | 'pagada' | 'vencida';
 
-export interface Creditor {
-  id: CreditorId;
-  name: string;
-  cae: number;
+// ── Acreedor ─────────────────────────────────────────────────────
+export interface Acreedor {
+  id: string;
+  nombre: string;           // ← "nombre", no "name"
+  tipo: 'retail' | 'banco' | 'caja';
   color: string;
   iconName: string;
 }
 
-// ── Deuda registrada en presupuesto ───────────────────────────────
+// ── Modelo Deuda del backend (Diego) ─────────────────────────────
+export interface Deuda {
+  id: string;
+  monto_original: number;
+  saldo_pendiente: number;
+  tasa_interes: number;
+  porcentaje_pago_minimo: number;
+  fecha_limite: string;
+  estado: EstadoDeuda;
+  acreedor: Acreedor;
+  creadoEn?: string;
+  actualizadoEn?: string;
+}
+
+// ── DTO para POST /api/deudas ─────────────────────────────────────
+export interface CreateDeudaDto {
+  monto_original: number;
+  saldo_pendiente: number;
+  tasa_interes: number;
+  porcentaje_pago_minimo: number;
+  fecha_limite: string;
+  estado: EstadoDeuda;
+  acreedorId: string;
+}
+
+// ── DebtEntry local (lo que guarda el store del frontend) ─────────
+// Usa los mismos campos que Deuda del backend
 export interface DebtEntry {
-  creditorId: CreditorId;
-  totalAmount: number;
-  totalInstallments: number;
-  paidInstallments: number;
+  creditorId: string;
+  // Campos exactos del modelo Deuda de Diego
+  monto_original: number;
+  saldo_pendiente: number;
+  tasa_interes: number;
+  porcentaje_pago_minimo: number;
+  fecha_limite: string;
+  estado: EstadoDeuda;
+  // Campos extra del frontend
   monthlyPayment: number;
+  cuotasTotales: number;
+  cuotasPagadas: number;
 }
 
 // ── Presupuesto mensual ───────────────────────────────────────────
 export interface BudgetMonth {
   salary: number;
   extras: number;
-  creditorPayments: Record<CreditorId, number>;
+  creditorPayments: Record<string, number>;
   debts: DebtEntry[];
 }
 

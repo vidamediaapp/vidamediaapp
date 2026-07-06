@@ -1,79 +1,167 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>registro</ion-title>
+    <ion-title>Crear cuenta</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="ion-text-center">Crear Cuenta</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true">
+  <div class="reg-wrap">
 
-<ion-content class="ion-padding ion-text-center">
-  <div class="login-logo ion-margin-bottom">
-    <ion-icon name="person-add-outline" style="font-size: 96px; color: var(--ion-color-primary);"></ion-icon>
-  </div>
+    <div class="brand">
+      <div class="brand-icon">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+      <h1>Vida Media</h1>
+      <p>Crea tu cuenta para proteger tus finanzas</p>
+    </div>
 
-  <form [formGroup]="formularioregistro" (ngSubmit)="registrar()">
-    <ion-list lines="none">
-      
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="person-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="text" 
-          placeholder="Nombre completo" 
-          formControlName="nombre">
-        </ion-input>
-      </ion-item>
+    <!-- Error de API -->
+    <div class="api-error" *ngIf="apiError()">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span>{{ apiError() }}</span>
+      <button (click)="apiError.set(null)">✕</button>
+    </div>
 
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="mail-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="email" 
-          placeholder="Correo electrónico" 
-          inputmode="email"
-          formControlName="email">
-        </ion-input>
-      </ion-item>
-      <div class="error-container ion-text-start ion-padding-start" 
-           *ngIf="formularioregistro.get('email')?.touched && formularioregistro.get('email')?.invalid">
-        <ion-text color="danger"><small>Ingresa un correo electrónico válido.</small></ion-text>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- IDENTIFICACIÓN -->
+      <div class="form-section">
+        <p class="section-label">
+          <ion-icon name="card-outline"></ion-icon>Identificación
+        </p>
+        <div class="vm-field">
+          <label class="vm-label" for="rut"><ion-icon name="card-outline"></ion-icon>RUT</label>
+          <div class="vm-iw" [class.invalid]="error('rut')" [class.valid]="c['rut'].valid && c['rut'].touched">
+            <ion-icon name="card-outline" class="inp-icon"></ion-icon>
+            <input id="rut" type="text" placeholder="12.345.678-9"
+                   formControlName="rut" class="vm-inp"
+                   (input)="onRutInput($event)" maxlength="12" autocomplete="off">
+            <ion-icon *ngIf="c['rut'].valid && c['rut'].touched"
+                      name="checkmark-circle-outline" class="valid-icon"></ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('rut')">
+            <ion-icon name="alert-circle-outline"></ion-icon>{{ error('rut') }}
+          </p>
+        </div>
+        <div class="vm-field">
+          <label class="vm-label" for="email"><ion-icon name="mail-outline"></ion-icon>Correo electrónico</label>
+          <div class="vm-iw" [class.invalid]="error('email')" [class.valid]="c['email'].valid && c['email'].touched">
+            <ion-icon name="mail-outline" class="inp-icon"></ion-icon>
+            <input id="email" type="email" inputmode="email" placeholder="nombre@correo.cl"
+                   formControlName="email" class="vm-inp" autocomplete="email">
+            <ion-icon *ngIf="c['email'].valid && c['email'].touched"
+                      name="checkmark-circle-outline" class="valid-icon"></ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('email')">
+            <ion-icon name="alert-circle-outline"></ion-icon>{{ error('email') }}
+          </p>
+        </div>
       </div>
 
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="password" 
-          placeholder="Contraseña (mín. 6 caracteres)" 
-          formControlName="password">
-        </ion-input>
-      </ion-item>
+      <!-- DATOS PERSONALES -->
+      <div class="form-section">
+        <p class="section-label">
+          <ion-icon name="person-outline"></ion-icon>Datos personales
+        </p>
+        <div class="vm-field">
+          <label class="vm-label" for="nombre"><ion-icon name="person-outline"></ion-icon>Nombre</label>
+          <div class="vm-iw" [class.invalid]="error('nombre')" [class.valid]="c['nombre'].valid && c['nombre'].touched">
+            <input id="nombre" type="text" placeholder="Ej: Camila"
+                   formControlName="nombre" class="vm-inp no-icon"
+                   (input)="onNameInput($event, 'nombre')" autocomplete="given-name">
+          </div>
+          <p class="vm-error" *ngIf="error('nombre')">
+            <ion-icon name="alert-circle-outline"></ion-icon>{{ error('nombre') }}
+          </p>
+        </div>
 
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="lock-check-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="password" 
-          placeholder="Confirmar contraseña" 
-          formControlName="confirmPassword">
-        </ion-input>
-      </ion-item>
-      <div class="error-container ion-text-start ion-padding-start" 
-           *ngIf="formularioregistro.hasError('mismatch') && formularioregistro.get('confirmPassword')?.touched">
-        <ion-text color="danger"><small>Las contraseñas no coinciden.</small></ion-text>
+        <div class="field-grid">
+          <div class="vm-field">
+            <label class="vm-label" for="apePat">Apellido paterno</label>
+            <div class="vm-iw sm" [class.invalid]="error('apellidoPat')" [class.valid]="c['apellidoPat'].valid && c['apellidoPat'].touched">
+              <input id="apePat" type="text" placeholder="Ej: Fuentes"
+                     formControlName="apellidoPat" class="vm-inp no-icon"
+                     (input)="onNameInput($event, 'apellidoPat')" autocomplete="family-name">
+            </div>
+            <p class="vm-error sm" *ngIf="error('apellidoPat')">
+              <ion-icon name="alert-circle-outline"></ion-icon>{{ error('apellidoPat') }}
+            </p>
+          </div>
+          <div class="vm-field">
+            <label class="vm-label" for="apeMat">Apellido materno <span class="optional">(opcional)</span></label>
+            <div class="vm-iw sm" [class.invalid]="error('apellidoMat')">
+              <input id="apeMat" type="text" placeholder="Ej: Rojas"
+                     formControlName="apellidoMat" class="vm-inp no-icon"
+                     (input)="onNameInput($event, 'apellidoMat')">
+            </div>
+            <p class="vm-error sm" *ngIf="error('apellidoMat')">
+              <ion-icon name="alert-circle-outline"></ion-icon>{{ error('apellidoMat') }}
+            </p>
+          </div>
+        </div>
+
+        <div class="vm-field">
+          <label class="vm-label" for="tel"><ion-icon name="call-outline"></ion-icon>Teléfono</label>
+          <div class="vm-iw" [class.invalid]="error('telefono')" [class.valid]="c['telefono'].valid && c['telefono'].touched">
+            <ion-icon name="call-outline" class="inp-icon"></ion-icon>
+            <input id="tel" type="tel" inputmode="tel" placeholder="+56 9 1234 5678"
+                   formControlName="telefono" class="vm-inp"
+                   (input)="onPhoneInput($event)" autocomplete="tel" maxlength="16">
+            <ion-icon *ngIf="c['telefono'].valid && c['telefono'].touched"
+                      name="checkmark-circle-outline" class="valid-icon"></ion-icon>
+          </div>
+          <p class="vm-error" *ngIf="error('telefono')">
+            <ion-icon name="alert-circle-outline"></ion-icon>{{ error('telefono') }}
+          </p>
+        </div>
       </div>
 
-    </ion-list>
+      <!-- CONTRASEÑA -->
+      <div class="form-section">
+        <p class="section-label">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>Contraseña
+        </p>
+        <div class="vm-field">
+          <label class="vm-label" for="pass">Contraseña</label>
+          <div class="vm-iw" [class.invalid]="error('password')" [class.valid]="c['password'].valid && c['password'].touched">
+            <input id="pass" [type]="showPass() ? 'text' : 'password'"
+                   placeholder="Mínimo 8 caracteres"
+                   formControlName="password" class="vm-inp no-icon"
+                   autocomplete="new-password">
+            <button type="button" class="eye-btn" (click)="togglePass()">
+              <ion-icon [name]="showPass() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <p class="vm-error" *ngIf="error('password')">
+            <ion-icon name="alert-circle-outline"></ion-icon>{{ error('password') }}
+          </p>
+        </div>
+        <div class="vm-field">
+          <label class="vm-label" for="passConf">Confirmar contraseña</label>
+          <div class="vm-iw" [class.invalid]="error('passwordConfirm')" [class.valid]="c['passwordConfirm'].valid && c['passwordConfirm'].touched">
+            <input id="passConf" [type]="showPass() ? 'text' : 'password'"
+                   placeholder="Repite tu contraseña"
+                   formControlName="passwordConfirm" class="vm-inp no-icon"
+                   autocomplete="new-password">
+          </div>
+          <p class="vm-error" *ngIf="error('passwordConfirm')">
+            <ion-icon name="alert-circle-outline"></ion-icon>{{ error('passwordConfirm') }}
+          </p>
+        </div>
+      </div>
 
-    <ion-button expand="block" shape="round" type="submit" [disabled]="formularioregistro.invalid" class="ion-margin-top">
-      Registrarse
-    </ion-button>
-  </form>
+      <button type="submit" class="vm-submit-btn" [disabled]="loading()">
+        <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+        <ion-icon name="checkmark-circle-outline" *ngIf="!loading()"></ion-icon>
+        {{ loading() ? 'Creando cuenta…' : 'Crear cuenta' }}
+      </button>
 
-  <div class="ion-margin-top">
-    <p>¿Ya tienes una cuenta? <ion-text color="primary" routerLink="/login" style="cursor: pointer; font-weight: bold;">Inicia sesión</ion-text></p>
+    </form>
+
+    <div class="login-row">
+      <span>¿Ya tienes cuenta?</span>
+      <a routerLink="/login">Iniciar sesión</a>
+    </div>
+
   </div>
 </ion-content>

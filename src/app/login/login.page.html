@@ -1,58 +1,88 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="success">
-    <ion-title>Login</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title class="ion-text-center">Iniciar Sesión</ion-title>
+    <ion-title>Vida Media</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding ion-text-center">
-  <div class="login-logo ion-margin-bottom">
-    <ion-icon name="person-circle-outline" style="font-size: 96px; color: var(--ion-color-primary);"></ion-icon>
-  </div>
+<ion-content [fullscreen]="true">
+  <div class="login-wrap">
 
-  <form>
-    <ion-list lines="none">
-      
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="mail-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="email" 
-          placeholder="Correo electrónico" 
-          inputmode="email"
-          required="true">
-        </ion-input>
-      </ion-item>
-
-      <ion-item class="ion-margin-bottom custom-input">
-        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="password" 
-          placeholder="Contraseña" 
-          required="true">
-        </ion-input>
-      </ion-item>
-
-    </ion-list>
-
-    <div class="ion-text-end ion-margin-bottom">
-      <ion-note href="#" style="cursor: pointer;">¿Olvidaste tu contraseña?</ion-note>
+    <!-- Logo -->
+    <div class="brand">
+      <div class="brand-icon">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+      <h1>Vida Media</h1>
+      <p>Tu escudo financiero</p>
     </div>
 
-    <ion-button expand="block" shape="round" type="submit" class="ion-margin-top">
-      Ingresar
-    </ion-button>
-  </form>
+    <!-- Error de API -->
+    <div class="api-error" *ngIf="apiError()">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span>{{ apiError() }}</span>
+      <button (click)="apiError.set(null)">✕</button>
+    </div>
 
-<div class="ion-margin-top">
-  <p>
-    ¿No tienes una cuenta? 
-    <ion-text color="primary" (click)="irARegistro()" style="cursor: pointer; font-weight: bold;">
-      Regístrate
-    </ion-text>
-  </p>
-</div>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Email -->
+      <div class="vm-field">
+        <label class="vm-label" for="email">
+          <ion-icon name="mail-outline"></ion-icon>
+          Correo electrónico
+        </label>
+        <div class="vm-iw"
+             [class.invalid]="emailError()"
+             [class.valid]="c['email'].valid && c['email'].touched">
+          <ion-icon name="mail-outline" class="inp-icon"></ion-icon>
+          <input id="email" type="email" inputmode="email"
+                 placeholder="nombre@correo.cl"
+                 formControlName="email"
+                 class="vm-inp"
+                 autocomplete="email">
+        </div>
+        <p class="vm-error" *ngIf="emailError()">
+          <ion-icon name="alert-circle-outline"></ion-icon>{{ emailError() }}
+        </p>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="vm-field">
+        <label class="vm-label" for="password">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          Contraseña
+        </label>
+        <div class="vm-iw"
+             [class.invalid]="passError()"
+             [class.valid]="c['password'].valid && c['password'].touched">
+          <ion-icon name="lock-closed-outline" class="inp-icon"></ion-icon>
+          <input id="password"
+                 [type]="showPass() ? 'text' : 'password'"
+                 placeholder="Tu contraseña"
+                 formControlName="password"
+                 class="vm-inp"
+                 autocomplete="current-password">
+          <button type="button" class="eye-btn" (click)="togglePass()">
+            <ion-icon [name]="showPass() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+        <p class="vm-error" *ngIf="passError()">
+          <ion-icon name="alert-circle-outline"></ion-icon>{{ passError() }}
+        </p>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="vm-submit-btn" [disabled]="loading()">
+        <ion-spinner name="crescent" *ngIf="loading()"></ion-spinner>
+        <span *ngIf="!loading()">Iniciar sesión</span>
+      </button>
+
+    </form>
+
+    <div class="register-row">
+      <span>¿No tienes cuenta?</span>
+      <a routerLink="/registro">Crear cuenta</a>
+    </div>
+
+  </div>
+</ion-content>
