@@ -43,7 +43,7 @@ describe('Automatización de Registro - Vida Media', () => {
   it('Debería escribir en todos los campos del formulario automáticamente', () => {
     
     // === SECCIÓN: IDENTIFICACIÓN ===
-    cy.get('#rut').type('123456789', { force: true }); // 👈 Forzamos el tipeo aquí
+    cy.get('#rut').type('177632546', { force: true }); // 👈 Forzamos el tipeo aquí
     cy.get('#email').type('test.usuario@vidamedia.cl', { force: true });
 
     // === SECCIÓN: DATOS PERSONALES ===

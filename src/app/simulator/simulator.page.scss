@@ -1,0 +1,143 @@
+$bg-dark:#0d1117;$bg-card:#181c24;$border:rgba(255,255,255,.07);$muted:#6b7280;$text:#e2e8f0;
+$teal:#1D9E75;$teal-bg:rgba(29,158,117,.12);$teal-dim:rgba(29,158,117,.3);
+$danger:#E24B4A;$danger-dim:rgba(226,75,74,.35);$amber:#EF9F27;$amber-dim:rgba(239,159,39,.3);
+
+ion-toolbar{--background:#{$bg-dark};--color:#e8f5e9}
+
+.cmf-badge{
+  display:flex;align-items:center;gap:6px;margin:12px 14px 0;padding:9px 12px;
+  background:rgba(239,159,39,.1);border:.5px solid $amber-dim;border-radius:10px;
+  font-size:11px;color:$amber;
+  ion-icon{font-size:15px;flex-shrink:0}
+}
+
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 32px;text-align:center;gap:12px;
+  ion-icon{font-size:52px;color:$muted}
+  h2{font-size:18px;font-weight:500;color:$text}
+  p{font-size:13px;color:$muted;line-height:1.6}
+}
+
+.vm-section{padding:12px 14px 0}
+.vm-section-label{
+  font-size:11px;font-weight:500;color:$muted;text-transform:uppercase;
+  letter-spacing:.5px;margin:0 0 8px;display:flex;align-items:center;gap:5px;
+  ion-icon{font-size:13px}
+}
+.vm-card{background:$bg-card;border-radius:14px;border:.5px solid $border;padding:14px;margin-bottom:4px}
+
+.debt-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;&::-webkit-scrollbar{display:none}}
+.debt-tab{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 12px;border-radius:10px;border:.5px solid $border;
+  background:$bg-card;cursor:pointer;flex-shrink:0;transition:all .2s;
+  &.active{background:var(--tab-color,#{$teal});border-color:transparent;
+    .tab-name,.tab-balance{color:#fff}}
+}
+.tab-name{font-size:12px;font-weight:500;color:$text}
+.tab-balance{font-size:10px;color:$muted}
+
+.debt-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:.5px solid $border}
+.dh-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dh-name{display:block;font-size:14px;font-weight:500;color:$text}
+.dh-detail{display:block;font-size:11px;color:$muted;margin-top:2px}
+
+.slider-block{margin-bottom:16px;&:last-of-type{margin-bottom:12px}}
+.slider-label{
+  display:flex;justify-content:space-between;align-items:center;font-size:13px;color:$muted;margin-bottom:4px;
+  strong{font-size:15px;color:$text}
+  strong.teal{color:$teal}
+}
+.slider-hint{font-size:11px;color:$muted;margin-top:2px;strong{color:$text}}
+
+ion-range{
+  padding:0;--bar-height:4px;--bar-border-radius:2px;--knob-size:22px;
+  --pin-background:#{$teal};--pin-color:#fff;
+  &[color="success"]{--bar-background-active:#{$teal};--knob-background:#{$teal}}
+}
+
+.api-btn{
+  width:100%;background:rgba(255,255,255,.05);border:.5px solid $border;border-radius:9px;
+  padding:10px;font-size:12px;color:$muted;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;
+  ion-icon{font-size:15px}
+  ion-spinner{--color:#{$muted};width:15px;height:15px}
+  &:active{border-color:$teal;color:$teal}
+  &:disabled{opacity:.5;cursor:default}
+}
+.api-info{
+  display:flex;align-items:center;gap:5px;font-size:11px;color:$teal;margin-top:6px;
+  ion-icon{font-size:13px}
+}
+.api-error-inline{
+  display:flex;align-items:center;gap:5px;font-size:11px;color:$amber;margin-top:6px;
+  ion-icon{font-size:13px}
+}
+
+.result-grid{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.result-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.result-label{font-size:11px;color:$muted;text-transform:uppercase;letter-spacing:.3px}
+.result-value{font-size:26px;font-weight:500;color:$text;&.teal{color:$teal}}
+.result-sub{font-size:11px;color:$muted}
+.result-arrow{font-size:22px;color:$muted;flex-shrink:0}
+
+// ← CORREGIDO: darken() reemplazado por #178a60
+.saving-banner{
+  display:flex;align-items:center;gap:10px;padding:12px;
+  background:$teal-bg;border:.5px solid $teal-dim;border-radius:10px;
+  font-size:13px;color:$teal;
+  ion-icon{font-size:20px;flex-shrink:0}
+  strong{display:block;font-size:15px;margin-bottom:2px}
+  span{color:#178a60}
+  &.warning{background:rgba(239,159,39,.1);border-color:$amber-dim;color:$amber;ion-icon{color:$amber}}
+  &.danger{background:rgba(226,75,74,.1);border-color:$danger-dim;color:$danger;ion-icon{color:$danger}}
+}
+
+ion-segment{--background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:10px}
+.strategy-desc{font-size:12px;color:$muted;line-height:1.6;margin:0 0 8px}
+
+.strategy-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:.5px solid $border;
+  &.no-border{border-bottom:none;padding-bottom:0}
+}
+.priority-badge{
+  width:24px;height:24px;border-radius:50%;color:#fff;
+  font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.strategy-info{flex:1}
+.strategy-name{display:block;font-size:13px;font-weight:500;color:$text}
+.strategy-detail{display:block;font-size:11px;color:$muted;margin-top:1px}
+.strategy-tag{
+  font-size:10px;padding:3px 9px;border-radius:20px;
+  background:rgba(255,255,255,.06);color:$muted;border:.5px solid $border;
+  &.first{background:rgba(226,75,74,.15);color:#F09595;border-color:rgba(226,75,74,.3)}
+}
+.strategy-summary{
+  margin-top:10px;padding-top:10px;border-top:.5px solid $border;
+  display:flex;flex-direction:column;gap:4px;
+}
+.ss-row{
+  display:flex;justify-content:space-between;font-size:12px;color:$muted;
+  strong{color:$text}
+  strong.teal{color:$teal}
+}
+
+.cmf-row{
+  display:grid;grid-template-columns:10px 1fr auto auto;align-items:center;
+  gap:10px;padding:9px 0;border-bottom:.5px solid $border;
+  &.no-border{border-bottom:none;padding-bottom:0}
+  &.active .cmf-label{color:$text;font-weight:500}
+}
+.cmf-dot{
+  width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);
+  &.active{background:$teal;box-shadow:0 0 0 3px rgba(29,158,117,.2)}
+}
+.cmf-info{flex:1}
+.cmf-label{display:block;font-size:12px;color:$muted}
+.cmf-desc{display:block;font-size:10px;color:rgba(107,114,128,.7);margin-top:1px}
+.cmf-date{font-size:11px;color:$muted}
+.cmf-pct{font-size:12px;font-weight:500;color:$muted;min-width:28px;text-align:right;&.active{color:$teal}}
+
+.teal{color:$teal}

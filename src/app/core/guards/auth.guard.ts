@@ -2,7 +2,6 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-// Protege rutas que requieren sesión (home, presupuesto)
 export const authGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
@@ -11,7 +10,6 @@ export const authGuard: CanActivateFn = () => {
   return false;
 };
 
-// Evita que usuarios ya logueados vuelvan al login o registro
 export const guestGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);

@@ -9,16 +9,13 @@ ion-toolbar{--background:#{$bg-dark};--color:#e8f5e9}
   padding:0 20px 40px;max-width:440px;margin:0 auto;
 }
 
-.brand{
-  text-align:center;padding:48px 0 32px;
-  .brand-icon{
-    width:60px;height:60px;margin:0 auto 14px;border-radius:16px;
-    background:$teal-bg;border:.5px solid $teal-dim;
-    display:flex;align-items:center;justify-content:center;
-    ion-icon{font-size:28px;color:$teal}
-  }
-  h1{color:#e8f5e9;font-size:24px;font-weight:500;margin:0 0 4px}
-  p{color:$muted;font-size:13px;margin:0}
+// DESPUÉS — elimina el .brand-icon y agrega esto
+.brand-logo {
+  width: 100px;
+  height: 110px;
+  margin: 0 auto 14px;
+  display: block;
+  object-fit: contain;
 }
 
 .api-error{
