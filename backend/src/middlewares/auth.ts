@@ -16,6 +16,15 @@ declare global {
     }
 }
 
+
+declare global {
+    namespace Express {
+        interface Request {
+            user?: TokenPayload;
+        }
+    }
+}
+
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
     
     const authHeader = req.headers.authorization;

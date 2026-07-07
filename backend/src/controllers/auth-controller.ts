@@ -4,16 +4,16 @@ import { AuthService } from '../services/auth-service';
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-
     async register(req: Request, res: Response): Promise<void> {
         try {
-            const { email, password, nombre, apaterno, amaterno, telefono, rut } = req.body;
+            
+            const { email, password, nombre, apellidoPat, apellidoMat, telefono, rut } = req.body;
 
-
-            if (!email || !password || !nombre || !apaterno) {
+            
+            if (!email || !password || !nombre || !apellidoPat) {
                 res.status(400).json({
                     success: false,
-                    message: 'Faltan campos obligatorios: email, password, nombre, apaterno'
+                    message: 'Faltan campos obligatorios: email, password, nombre, apellidoPat'
                 });
                 return;
             }
@@ -22,12 +22,11 @@ export class AuthController {
                 email,
                 password,
                 nombre,
-                apaterno,
-                amaterno: amaterno || '',
+                apellidoPat,
+                apellidoMat: apellidoMat || '',
                 telefono: telefono || '',
                 rut: rut || ''
             });
-
 
             const token = await this.authService.login({ email, password });
 
@@ -88,7 +87,6 @@ export class AuthController {
         }
     }
 
-
     async getProfile(req: Request, res: Response): Promise<void> {
         try {
             const usuarioId = req.user?.id;
@@ -121,7 +119,6 @@ export class AuthController {
             });
         }
     }
-
 
     async logout(req: Request, res: Response): Promise<void> {
         res.status(200).json({
