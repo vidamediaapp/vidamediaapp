@@ -6,13 +6,13 @@ export interface SimulacionRequest {
     pagoMensual: number;
     porcentajePagoMinimo?: number;
 
-    // 📌 Campos para la norma CMF (solo para tarjetas de crédito)
+    
     esTarjetaCredito?: boolean;
-    cuotasSinInteres?: number;      // Monto de cuotas sin interés
-    mantención?: number;             // Costo de mantención
-    seguros?: number;                // Seguros asociados
-    comisiones?: number;             // Comisiones
-    interesesAcumulados?: number;    // Intereses acumulados de períodos anteriores
+    cuotasSinInteres?: number;      
+    mantención?: number;            
+    seguros?: number;                
+    comisiones?: number;             
+    interesesAcumulados?: number;    
 }
 
 export interface SimulacionResponse {
@@ -25,9 +25,16 @@ export interface SimulacionResponse {
     faseCMF?: number;              
 }
 
+
+export interface SimulacionComparativaResponse {
+    sinExtra: SimulacionResponse;
+    conExtra: SimulacionResponse;
+    mesesAhorrados: number;
+    interesAhorrado: number;
+}
+
 export class SimulacionService {
 
- 
     private getFaseCMF(): number {
         const hoy = new Date();
         const jun2026 = new Date(2026, 5, 4);
@@ -44,30 +51,22 @@ export class SimulacionService {
         return 1;
     }
 
-  
     private calcularPagoMinimoCMF(data: SimulacionRequest): { pagoMinimo: number; fase: number } {
         const fase = this.getFaseCMF();
 
-        // Si no es tarjeta de crédito, no aplica la norma CMF
         if (!data.esTarjetaCredito) {
             return { pagoMinimo: 0, fase };
         }
 
-        // ── 1. Calcular Monto No Financiable (MNF) ──
         const mnfBase =
             (data.interesesAcumulados || 0) +
             (data.comisiones || 0) +
             (data.seguros || 0) +
             (data.mantención || 0);
 
-        // Las cuotas sin interés se integran gradualmente
         const mnfCuotas = (data.cuotasSinInteres || 0) * fase;
         const mnfTotal = mnfBase + mnfCuotas;
-
-        // ── 2. Calcular Monto Financiable (MF) ──
         const mf = Math.max(0, data.saldoPendiente - mnfTotal);
-
-        // ── 3. Fórmula CMF: MNF + (5% del MF) ──
         const pagoMinimo = mnfTotal + (mf * 0.05);
 
         return {
@@ -76,7 +75,6 @@ export class SimulacionService {
         };
     }
 
-  
     simular(data: SimulacionRequest): SimulacionResponse {
         const {
             saldoPendiente,
@@ -86,7 +84,6 @@ export class SimulacionService {
             esTarjetaCredito = false
         } = data;
 
-        // ── Validaciones ──────────────────────────────
         if (saldoPendiente <= 0) {
             throw new Error('El saldo pendiente debe ser mayor a 0.');
         }
@@ -94,17 +91,14 @@ export class SimulacionService {
             throw new Error('El pago mensual debe ser mayor a 0.');
         }
 
-        // ── Calcular pago mínimo CMF ──────────────────
         const cmfResult = this.calcularPagoMinimoCMF(data);
         const pagoMinimoCMF = cmfResult.pagoMinimo;
         const faseCMF = cmfResult.fase;
 
-        // ── Pago mínimo tradicional (por si se necesita) ──
         const pagoMinimoTradicional = porcentajePagoMinimo
             ? saldoPendiente * (porcentajePagoMinimo / 100)
             : undefined;
 
-        // ── Simulación de pago ────────────────────────
         let saldoActual = saldoPendiente;
         let totalPagado = 0;
         let meses = 0;
@@ -142,8 +136,34 @@ export class SimulacionService {
             interesTotal: Math.round((totalPagado - saldoPendiente) * 100) / 100,
             esTrampa,
             pagoMinimoSugerido: pagoMinimoTradicional ? Math.round(pagoMinimoTradicional * 100) / 100 : undefined,
-            pagoMinimoCMF: esTarjetaCredito ? pagoMinimoCMF : undefined, 
-            faseCMF: esTarjetaCredito ? faseCMF : undefined              
+            pagoMinimoCMF: esTarjetaCredito ? pagoMinimoCMF : undefined,
+            faseCMF: esTarjetaCredito ? faseCMF : undefined
+        };
+    }
+
+    // ─── NUEVO MÉTODO: Simulación comparativa ──────────────────────────
+    simularConComparacion(
+        data: SimulacionRequest & { extraPayment?: number }
+    ): SimulacionComparativaResponse {
+        const { extraPayment = 0, ...baseData } = data;
+
+        // Simulación sin pago extra
+        const sinExtra = this.simular(baseData);
+
+        // Simulación con pago extra
+        const conExtra = this.simular({
+            ...baseData,
+            pagoMensual: baseData.pagoMensual + extraPayment
+        });
+
+        const mesesAhorrados = sinExtra.mesesProyectados - conExtra.mesesProyectados;
+        const interesAhorrado = sinExtra.interesTotal - conExtra.interesTotal;
+
+        return {
+            sinExtra,
+            conExtra,
+            mesesAhorrados: mesesAhorrados > 0 ? mesesAhorrados : 0,
+            interesAhorrado: interesAhorrado > 0 ? interesAhorrado : 0
         };
     }
 }

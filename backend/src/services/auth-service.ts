@@ -2,6 +2,7 @@ import {Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Usuario } from '../entities/usuario';
+import {CreateUsuarioDto} from '../dtos/crear-usuario.dto';
 
 interface RegisterData {
   email: string;
@@ -27,7 +28,7 @@ export class AuthService {
 
     constructor(private userRepository: Repository<Usuario>) {}
 
-    async register(data: RegisterData): Promise<Usuario> {
+    async register(data: CreateUsuarioDto): Promise<Usuario> {
         const usuarioExistente = await this.userRepository.findOne({ where: { email: data.email } });
         if (usuarioExistente) {
             throw new Error('El correo electrónico ya está registrado.');
@@ -38,8 +39,8 @@ export class AuthService {
             email: data.email,
             passwordHash,
             nombre: data.nombre,
-            apaterno: data.apaterno,
-            amaterno: data.amaterno,
+            apaterno: data.apellidoPat,
+            amaterno: data.apellidoMat,
             rut: data.rut,
             telefono: data.telefono,
   
