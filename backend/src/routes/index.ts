@@ -1,26 +1,26 @@
 import { Router } from 'express';
-import authRoutes from './auth-routes';          
-import usuarioRoutes from './usuario-routes';    
+import authRoutes from './auth-routes';
+import usuarioRoutes from './usuario-routes';
 import acreedoresRoutes from './acreedores-routes';
 import deudasRoutes from './deuda-routes';
 import pagosRoutes from './pagos-routes';
 import presupuestosRoutes from './presupuestos-routes';
 import simulacionesRoutes from './simulaciones-routes';
+import cmfRoutes from './cmf-routes';
+import analisisRoutes from './analisis-routes';
+
 
 const router = Router();
 
-
-router.use('/auth', authRoutes);    
-
-
-router.use('/usuarios', usuarioRoutes); 
-
-
+router.use('/auth', authRoutes);
+router.use('/usuarios', usuarioRoutes);
 router.use('/acreedores', acreedoresRoutes);
 router.use('/deudas', deudasRoutes);
 router.use('/pagos', pagosRoutes);
 router.use('/presupuesto', presupuestosRoutes);
 router.use('/simulaciones', simulacionesRoutes);
+router.use('/indicadores', cmfRoutes);
+router.use('/analisis', analisisRoutes);
 
 
 router.get('/ping', (req, res) => {
