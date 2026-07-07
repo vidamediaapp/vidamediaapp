@@ -7,13 +7,12 @@
 <ion-content [fullscreen]="true">
   <div class="reg-wrap">
 
-   <div class="brand">
-  <img src="assets/icon/vm.png" alt="Vida Media" class="brand-logo">
-  <h1>Vida Media</h1>
-  <p>Tu escudo financiero</p>
-</div>
+    <div class="brand">
+      <img src="assets/icon/vm.png" alt="Vida Media" class="brand-logo">
+      <h1>Vida Media</h1>
+      <p>Crea tu cuenta para proteger tus finanzas</p>
+    </div>
 
-    <!-- Error de API -->
     <div class="api-error" *ngIf="apiError()">
       <ion-icon name="alert-circle-outline"></ion-icon>
       <span>{{ apiError() }}</span>
@@ -27,6 +26,7 @@
         <p class="section-label">
           <ion-icon name="card-outline"></ion-icon>Identificación
         </p>
+
         <div class="vm-field">
           <label class="vm-label" for="rut"><ion-icon name="card-outline"></ion-icon>RUT</label>
           <div class="vm-iw" [class.invalid]="error('rut')" [class.valid]="c['rut'].valid && c['rut'].touched">
@@ -41,6 +41,7 @@
             <ion-icon name="alert-circle-outline"></ion-icon>{{ error('rut') }}
           </p>
         </div>
+
         <div class="vm-field">
           <label class="vm-label" for="email"><ion-icon name="mail-outline"></ion-icon>Correo electrónico</label>
           <div class="vm-iw" [class.invalid]="error('email')" [class.valid]="c['email'].valid && c['email'].touched">
@@ -61,6 +62,7 @@
         <p class="section-label">
           <ion-icon name="person-outline"></ion-icon>Datos personales
         </p>
+
         <div class="vm-field">
           <label class="vm-label" for="nombre"><ion-icon name="person-outline"></ion-icon>Nombre</label>
           <div class="vm-iw" [class.invalid]="error('nombre')" [class.valid]="c['nombre'].valid && c['nombre'].touched">
@@ -73,27 +75,28 @@
           </p>
         </div>
 
+        <!-- apaterno + amaterno en grid -->
         <div class="field-grid">
           <div class="vm-field">
-            <label class="vm-label" for="apePat">Apellido paterno</label>
-            <div class="vm-iw sm" [class.invalid]="error('apellidoPat')" [class.valid]="c['apellidoPat'].valid && c['apellidoPat'].touched">
-              <input id="apePat" type="text" placeholder="Ej: Fuentes"
-                     formControlName="apellidoPat" class="vm-inp no-icon"
-                     (input)="onNameInput($event, 'apellidoPat')" autocomplete="family-name">
+            <label class="vm-label" for="apaterno">Apellido paterno</label>
+            <div class="vm-iw sm" [class.invalid]="error('apaterno')" [class.valid]="c['apaterno'].valid && c['apaterno'].touched">
+              <input id="apaterno" type="text" placeholder="Ej: Fuentes"
+                     formControlName="apaterno" class="vm-inp no-icon"
+                     (input)="onNameInput($event, 'apaterno')" autocomplete="family-name">
             </div>
-            <p class="vm-error sm" *ngIf="error('apellidoPat')">
-              <ion-icon name="alert-circle-outline"></ion-icon>{{ error('apellidoPat') }}
+            <p class="vm-error sm" *ngIf="error('apaterno')">
+              <ion-icon name="alert-circle-outline"></ion-icon>{{ error('apaterno') }}
             </p>
           </div>
           <div class="vm-field">
-            <label class="vm-label" for="apeMat">Apellido materno <span class="optional">(opcional)</span></label>
-            <div class="vm-iw sm" [class.invalid]="error('apellidoMat')">
-              <input id="apeMat" type="text" placeholder="Ej: Rojas"
-                     formControlName="apellidoMat" class="vm-inp no-icon"
-                     (input)="onNameInput($event, 'apellidoMat')">
+            <label class="vm-label" for="amaterno">Apellido materno <span class="optional">(opcional)</span></label>
+            <div class="vm-iw sm" [class.invalid]="error('amaterno')">
+              <input id="amaterno" type="text" placeholder="Ej: Rojas"
+                     formControlName="amaterno" class="vm-inp no-icon"
+                     (input)="onNameInput($event, 'amaterno')">
             </div>
-            <p class="vm-error sm" *ngIf="error('apellidoMat')">
-              <ion-icon name="alert-circle-outline"></ion-icon>{{ error('apellidoMat') }}
+            <p class="vm-error sm" *ngIf="error('amaterno')">
+              <ion-icon name="alert-circle-outline"></ion-icon>{{ error('amaterno') }}
             </p>
           </div>
         </div>
@@ -119,6 +122,7 @@
         <p class="section-label">
           <ion-icon name="shield-checkmark-outline"></ion-icon>Contraseña
         </p>
+
         <div class="vm-field">
           <label class="vm-label" for="pass">Contraseña</label>
           <div class="vm-iw" [class.invalid]="error('password')" [class.valid]="c['password'].valid && c['password'].touched">
@@ -134,6 +138,7 @@
             <ion-icon name="alert-circle-outline"></ion-icon>{{ error('password') }}
           </p>
         </div>
+
         <div class="vm-field">
           <label class="vm-label" for="passConf">Confirmar contraseña</label>
           <div class="vm-iw" [class.invalid]="error('passwordConfirm')" [class.valid]="c['passwordConfirm'].valid && c['passwordConfirm'].touched">

@@ -5,7 +5,7 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
     path: 'login',
-    canActivate: [guestGuard],   // si ya hay sesión va directo a home
+    canActivate: [guestGuard],
     loadComponent: () => import('./login/login.page').then(m => m.LoginPage),
   },
   {
@@ -15,13 +15,18 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    canActivate: [authGuard],    // requiere sesión
+    canActivate: [authGuard],
     loadComponent: () => import('./home/home.page').then(m => m.HomePage),
   },
   {
     path: 'presupuesto',
-    canActivate: [authGuard],    // requiere sesión
+    canActivate: [authGuard],
     loadComponent: () => import('./presupuesto/presupuesto.page').then(m => m.PresupuestoPage),
+  },
+  {
+    path: 'simulator',
+    canActivate: [authGuard],
+    loadComponent: () => import('./simulator/simulator.page').then(m => m.SimulatorPage),
   },
   { path: '**', redirectTo: 'login' },
 ];
