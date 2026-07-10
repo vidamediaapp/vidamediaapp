@@ -4,13 +4,34 @@ import { Deuda } from '../entities/deudas';
 export class DeudaService {
     constructor(private deudaRepository: Repository<Deuda>) {}
 
-    async obtenerDeudas(usuarioId: string): Promise<Deuda[]> {
-        return await this.deudaRepository.find({
-            where: { usuario: { id: usuarioId } },
-            relations: { acreedor: true },
-            order: { fecha_limite: 'ASC' }
-        });
-    }
+   async obtenerDeudas(usuarioId: string): Promise<Deuda[]> {
+    return await this.deudaRepository.find({
+        where: { usuario: { id: usuarioId } },
+        relations: { acreedor: true },
+        select: {
+            id: true,
+            monto_original: true,
+            saldo_pendiente: true,
+            tasa_interes: true,
+            porcentaje_pago_minimo: true,
+            fecha_limite: true,
+            estado: true,
+            totalCuotas: true,    
+            cuotasPagadas: true,    
+            cuotaMensual: true,     
+            acreedor: {
+                id: true,
+                nombreComercial: true,
+                tipo: true,
+                tasaInteresTipica: true,
+                porcentajePagoMinimo: true,
+                nivelAdvertencia: true,
+                notaEducativa: true,
+            },
+        },
+        order: { fecha_limite: 'ASC' }
+    });
+}
 
     async obtenerDeudaPorId(id: string, usuarioId: string): Promise<Deuda | null> {
         return await this.deudaRepository.findOne({

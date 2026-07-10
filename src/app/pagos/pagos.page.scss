@@ -1,0 +1,355 @@
+// ============================================================
+// PAGOS - Terminal Social
+// ============================================================
+
+$teal: #1D9E75;
+$text: var(--text-primary);
+$muted: var(--text-muted);
+$border: var(--border-default);
+$bg-card: var(--bg-card);
+$danger: #E24B4A;
+$amber: #EF9F27;
+
+ion-toolbar {
+  --background: var(--bg-surface);
+  --color: var(--text-primary);
+}
+
+.section-wrap { padding: 14px 12px 0; }
+
+.section-label {
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 1.2px;
+  margin: 0 0 8px;
+  display: block;
+}
+
+.vm-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  padding: 14px;
+}
+
+// ── Métricas ────────────────────────────────────────────────
+.metricas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.met-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  padding: 10px;
+}
+
+.met-lbl {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $muted;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.met-val {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: $text;
+
+  &.teal { color: $teal; }
+}
+
+// ── Impacto ─────────────────────────────────────────────────
+.impacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.impacto-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.impacto-valor {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: $text;
+  margin-bottom: 4px;
+
+  &.teal { color: $teal; }
+  &.warn { color: $amber; }
+}
+
+.impacto-label {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $muted;
+  letter-spacing: 0.8px;
+  margin-bottom: 2px;
+}
+
+.impacto-sub {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: rgba(107, 114, 128, .6);
+}
+
+// ── Formulario ──────────────────────────────────────────────
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(226, 75, 74, .06);
+  border: 1px solid rgba(226, 75, 74, .3);
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $danger;
+
+  ion-icon { font-size: 13px; flex-shrink: 0; }
+}
+
+.input-group {
+  margin-bottom: 10px;
+}
+
+.input-label {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $muted;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.input-field {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid $border;
+
+  &:focus-within { border-color: $teal; }
+
+  &.select-field { padding: 0; }
+}
+
+.input-prefix {
+  padding: 0 4px 0 8px;
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  color: $muted;
+}
+
+.input-suffix {
+  padding: 0 6px 0 2px;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $muted;
+}
+
+.input-control {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $text;
+  font-family: var(--ion-font-mono);
+  font-size: 12px;
+  padding: 8px 4px;
+
+  &::placeholder { color: rgba(107, 114, 128, .4); }
+}
+
+select.input-control {
+  padding: 8px 10px;
+  appearance: none;
+  cursor: pointer;
+  color-scheme: dark;
+
+  option {
+    background: $bg-card;
+    color: $text;
+  }
+}
+
+// ── Impacto del pago ────────────────────────────────────────
+.impacto-pago {
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(29, 158, 117, .04);
+  border: 1px solid rgba(29, 158, 117, .2);
+}
+
+.impacto-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $muted;
+  letter-spacing: 0.8px;
+
+  ion-icon { font-size: 14px; }
+}
+
+.impacto-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.impacto-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  color: $muted;
+
+  strong { color: $text; font-size: 11px; }
+}
+
+// ── Botón ───────────────────────────────────────────────────
+.save-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  margin-top: 4px;
+  background: $teal;
+  border: none;
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: #04342C;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+
+  ion-icon { font-size: 14px; }
+
+  &:active { background: #167a5b; }
+  &:disabled { background: rgba(29, 158, 117, .4); cursor: default; }
+}
+
+// ── Empty State ─────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  gap: 8px;
+
+  ion-icon { font-size: 36px; color: $muted; }
+
+  p {
+    font-family: var(--ion-font-mono);
+    font-size: 10px;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0;
+  }
+}
+
+// ── Historial ───────────────────────────────────────────────
+.mes-grupo { margin-bottom: 12px; }
+
+.mes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 4px;
+}
+
+.mes-label {
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $muted;
+  letter-spacing: 1px;
+}
+
+.mes-total {
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: $teal;
+}
+
+.pago-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .04);
+
+  &.no-border { border-bottom: none; }
+}
+
+.p-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 14px; }
+}
+
+.p-info { flex: 1; min-width: 0; }
+
+.p-name {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: $text;
+}
+
+.p-date {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $muted;
+  margin-top: 2px;
+}
+
+.p-right { text-align: right; flex-shrink: 0; }
+
+.p-monto {
+  font-family: var(--ion-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: $teal;
+}
+
+.p-del {
+  background: none;
+  border: none;
+  color: rgba(107, 114, 128, .4);
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 14px; }
+
+  &:active { color: $danger; }
+}

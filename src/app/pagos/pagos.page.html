@@ -1,0 +1,151 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>REGISTRO DE PAGOS</ion-title>
+    <ion-buttons slot="end">
+      <ion-icon name="receipt-outline" style="font-size:18px;color:#1D9E75;margin-right:14px"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div class="section-wrap">
+    <span class="section-label">RESUMEN</span>
+    <div class="metricas-grid">
+      <div class="met-card">
+        <span class="met-lbl">ESTE MES</span>
+        <span class="met-val teal">{{ totalPagadoEsteMes() | clp }}</span>
+      </div>
+      <div class="met-card">
+        <span class="met-lbl">DEUDAS ACTIVAS</span>
+        <span class="met-val">{{ deudasActivas() }}</span>
+      </div>
+      <div class="met-card">
+        <span class="met-lbl">TOTAL RECUPERADO</span>
+        <span class="met-val teal">{{ totalPagadoHistorico() | clp }}</span>
+      </div>
+      <div class="met-card">
+        <span class="met-lbl">INTERES AHORRADO</span>
+        <span class="met-val">{{ interesAhorrado() | clp }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-wrap" *ngIf="pagos().length > 0">
+    <span class="section-label">IMPACTO DE TUS PAGOS</span>
+    <div class="impacto-grid">
+      <div class="impacto-card">
+        <span class="impacto-valor">{{ mesesAdelantados() }}</span>
+        <span class="impacto-label">MESES ADELANTADOS</span>
+        <span class="impacto-sub">A este ritmo terminas antes</span>
+      </div>
+      <div class="impacto-card" *ngIf="comparacionMesPasado() as comp">
+        <span class="impacto-valor" [class.teal]="comp > 0" [class.warn]="comp < 0">
+          {{ comp > 0 ? '+' : '' }}{{ comp | clp }}
+        </span>
+        <span class="impacto-label">VS MES PASADO</span>
+        <span class="impacto-sub">{{ comp > 0 ? 'Recuperaste mas' : 'Recuperaste menos' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-wrap">
+    <span class="section-label">REGISTRAR PAGO</span>
+    <div class="vm-card" [formGroup]="form">
+      <div class="form-error" *ngIf="error()">
+        <ion-icon name="warning-outline"></ion-icon>{{ error() }}
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">DEUDA</label>
+        <div class="input-field select-field">
+          <select formControlName="deudaId" class="input-control">
+            <option value="" disabled selected>SELECCIONAR</option>
+            <option *ngFor="let d of deudas()" [value]="d.id">
+              {{ d.acreedor.nombreComercial }} — {{ d.saldo_pendiente | clp }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">MONTO</label>
+        <div class="input-field">
+          <span class="input-prefix">$</span>
+          <input type="number" inputmode="numeric" placeholder="0" formControlName="monto" class="input-control">
+          <span class="input-suffix">CLP</span>
+        </div>
+      </div>
+
+      <div class="impacto-pago" *ngIf="impactoPago() as impacto">
+        <div class="impacto-header">
+          <ion-icon [name]="impacto.cubreCuota ? 'checkmark-circle-outline' : 'warning-outline'"
+                    [style.color]="impacto.cubreCuota ? '#1D9E75' : '#EF9F27'"></ion-icon>
+          <span>IMPACTO DE ESTE PAGO</span>
+        </div>
+
+        <div class="impacto-detalle">
+          <div class="impacto-row">
+            <span>Cuota mensual</span>
+            <strong>{{ impacto.cuotaMensual | clp }}</strong>
+          </div>
+          <div class="impacto-row">
+            <span>{{ impacto.cubreCuota ? 'Cubres' : 'Te faltan' }}</span>
+            <strong [style.color]="impacto.cubreCuota ? '#1D9E75' : '#EF9F27'">
+              {{ impacto.cubreCuota ? impacto.cuotasCubiertas + ' cuota' + (impacto.cuotasCubiertas > 1 ? 's' : '') : (impacto.faltanteParaCuota | clp) }}
+            </strong>
+          </div>
+          <div class="impacto-row">
+            <span>Saldo resultante</span>
+            <strong>{{ impacto.nuevoSaldo | clp }}</strong>
+          </div>
+          <div class="impacto-row">
+            <span>Progreso</span>
+            <strong>{{ impacto.cubreCuota ? 'Mes ' + impacto.nuevoMes + ' de ' + impacto.totalCuotas : 'Sin avance' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" (click)="onGuardar()" [disabled]="guardando() || guardado()">
+        <ion-icon [name]="guardado() ? 'checkmark-circle-outline' : 'save-outline'"></ion-icon>
+        {{ guardando() ? 'GUARDANDO...' : guardado() ? 'REGISTRADO' : 'REGISTRAR PAGO' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="section-wrap" style="padding-bottom:32px">
+    <span class="section-label">HISTORIAL</span>
+
+    <div class="empty-state" *ngIf="pagosAgrupados().length === 0 && !cargandoPagos()">
+      <ion-icon name="receipt-outline"></ion-icon>
+      <p>SIN PAGOS REGISTRADOS</p>
+    </div>
+
+    <div class="mes-grupo" *ngFor="let mes of pagosAgrupados()">
+      <div class="mes-header">
+        <span class="mes-label">{{ mes.label }}</span>
+        <span class="mes-total">{{ mes.total | clp }}</span>
+      </div>
+
+      <div class="pago-row" *ngFor="let p of mes.pagos; let last = last" [class.no-border]="last">
+        <div class="p-icon" [style.background]="creditorColor(p.deuda?.id) + '1A'">
+          <ion-icon [name]="creditorIcon(p.deuda?.id)" [style.color]="creditorColor(p.deuda?.id)"></ion-icon>
+        </div>
+        <div class="p-info">
+          <span class="p-name">{{ creditorName(p.deuda?.id) }}</span>
+          <span class="p-date">{{ formatFecha(p.fechaPago) }}</span>
+        </div>
+        <div class="p-right">
+          <span class="p-monto">{{ p.monto | clp }}</span>
+        </div>
+        <button class="p-del" (click)="eliminarPago(p)">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

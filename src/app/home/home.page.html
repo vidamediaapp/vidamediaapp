@@ -54,16 +54,16 @@
       </div>
     </div>
 
-    <div class="alert-panel" *ngIf="nextPayment() as next" [style.borderColor]="nextPaymentUrgency()?.color + '60'">
+    <div class="alert-panel" *ngIf="nextDue() as next" [style.borderColor]="nextPaymentUrgency()?.color + '60'">
       <div class="alert-row">
         <div class="alert-creditor">
           <span class="alert-creditor-label">PROXIMO PAGO</span>
-          <span class="alert-creditor-name">{{ next.acreedor.nombreComercial }}</span>
+          <span class="alert-creditor-name">{{ next.deuda.acreedor.nombreComercial }}</span>
         </div>
-        <div class="alert-amount">{{ next.saldo_pendiente | clp }}</div>
+        <div class="alert-amount">{{ next.deuda.saldo_pendiente | clp }}</div>
       </div>
       <div class="alert-footer">
-        <span class="alert-date">Vence: {{ next.fecha_limite | date:'dd/MM/yyyy' }}</span>
+        <span class="alert-date">Vence: {{ next.vencimiento | date:'dd/MM/yyyy' }}</span>
         <span class="alert-days" [style.color]="nextPaymentUrgency()?.color">
           {{ nextPaymentUrgency()?.label }}
         </span>
@@ -77,6 +77,11 @@
           <ion-icon name="card-outline" class="tool-icon" style="color: #1D9E75"></ion-icon>
           <span class="tool-title">Deudas</span>
           <span class="tool-sub">{{ debts().length }} activas</span>
+        </a>
+        <a routerLink="/pagos" class="tool-card">
+          <ion-icon name="cash-outline" class="tool-icon" style="color: #1D9E75"></ion-icon>
+          <span class="tool-title">Pagos</span>
+          <span class="tool-sub">Registrar</span>
         </a>
         <a routerLink="/simulador" class="tool-card">
           <ion-icon name="calculator-outline" class="tool-icon" style="color: #378ADD"></ion-icon>

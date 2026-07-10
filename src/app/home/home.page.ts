@@ -6,7 +6,7 @@ import { addIcons } from 'ionicons';
 import { 
   walletOutline, addOutline, personOutline,
   cardOutline, calculatorOutline, layersOutline,
-  shieldCheckmarkOutline, flameOutline,
+  shieldCheckmarkOutline, flameOutline, cashOutline,
   informationOutline, ribbonOutline, medalOutline,
   chevronForwardOutline, timeOutline,
 } from 'ionicons/icons';
@@ -31,13 +31,8 @@ export class HomePage implements OnInit {
   public auth = inject(AuthService);
   private simulatorApi = inject(SimulatorApiService);
 
-  userName = computed(() => {
-    const name = this.auth.userNombre();
-    return name || 'USUARIO';
-  });
-
+  userName = computed(() => this.auth.userNombre() || 'USUARIO');
   fullName = this.auth.fullName;
-
   hasData = this.store.hasData;
   freedomPercent = this.store.freedomPercent;
   totalPagado = this.store.totalPagado;
@@ -58,26 +53,12 @@ export class HomePage implements OnInit {
     return { label: 'CRITICO', color: '#E24B4A', glyph: '[ ▱▱▱ ]' };
   });
 
-  nextPayment = computed(() => {
-    const active = this.debts().filter(d => d.estado === 'pendiente');
-    if (active.length === 0) return null;
-    const sorted = [...active].sort((a, b) => 
-      new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime()
-    );
-    return sorted[0];
-  });
-
-  daysUntilNext = computed(() => {
-    const next = this.nextPayment();
-    if (!next) return null;
-    const hoy = new Date();
-    const limite = new Date(next.fecha_limite);
-    return Math.ceil((limite.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
-  });
+  nextDue = this.store.nextDue;
 
   nextPaymentUrgency = computed(() => {
-    const days = this.daysUntilNext();
-    if (days === null) return null;
+    const next = this.nextDue();
+    if (!next) return null;
+    const days = next.dias;
     if (days < 0) return { label: 'VENCIDA', color: '#E24B4A' };
     if (days <= 3) return { label: `${days} DIAS`, color: '#E24B4A' };
     if (days <= 7) return { label: `${days} DIAS`, color: '#EF9F27' };
@@ -86,29 +67,12 @@ export class HomePage implements OnInit {
 
   dailyTip = computed(() => {
     const tips = [
-      {
-        text: 'Paga primero las deudas mas pequenas. Cada frente que cierras es una victoria.',
-        action: 'Ir al simulador',
-        route: '/simulador',
-      },
-      {
-        text: 'Destinar $10.000 extra al mes puede reducir meses de intereses. Simula cuanto ahorrarias.',
-        action: 'Simular ahora',
-        route: '/simulador',
-      },
-      {
-        text: 'Desde junio 2026, el pago minimo de tarjetas sube. Anticipa como te afecta.',
-        action: 'Ver cronograma',
-        route: '/simulador',
-      },
-      {
-        text: 'El CAE incluye seguros y comisiones. Compara siempre por CAE, no solo por la tasa.',
-        action: 'Ver deudas',
-        route: '/deudas',
-      },
+      { text: 'Paga primero las deudas mas pequenas. Cada frente que cierras es una victoria.', action: 'Ir al simulador', route: '/simulador' },
+      { text: 'Destinar $10.000 extra al mes puede reducir meses de intereses. Simula cuanto ahorrarias.', action: 'Simular ahora', route: '/simulador' },
+      { text: 'Desde junio 2026, el pago minimo de tarjetas sube. Anticipa como te afecta.', action: 'Ver cronograma', route: '/simulador' },
+      { text: 'El CAE incluye seguros y comisiones. Compara siempre por CAE, no solo por la tasa.', action: 'Ver deudas', route: '/deudas' },
     ];
-    const index = new Date().getDate() % tips.length;
-    return tips[index];
+    return tips[new Date().getDate() % tips.length];
   });
 
   availableClass = computed(() => {
@@ -132,7 +96,7 @@ export class HomePage implements OnInit {
     addIcons({
       walletOutline, addOutline, personOutline,
       cardOutline, calculatorOutline, layersOutline,
-      shieldCheckmarkOutline, flameOutline,
+      shieldCheckmarkOutline, flameOutline, cashOutline,
       informationOutline, ribbonOutline, medalOutline,
       chevronForwardOutline, timeOutline,
     });
@@ -147,21 +111,11 @@ export class HomePage implements OnInit {
 
   private refreshDataFromServer() {
     const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
-
-    this.api.getPresupuesto(currentMonth, currentYear).subscribe({
-      next: () => {},
-      error: (err) => {
-        if (err.status === 401) console.warn('Token no disponible');
-      }
+    this.api.getPresupuesto(now.getMonth() + 1, now.getFullYear()).subscribe({
+      error: (err) => { if (err.status !== 401) console.error('Error al recuperar presupuesto:', err); }
     });
-
     this.api.getDeudas().subscribe({
-      next: () => {},
-      error: (err) => {
-        if (err.status === 401) console.warn('Token no disponible');
-      }
+      error: (err) => { if (err.status !== 401) console.error('Error al cargar deudas:', err); }
     });
   }
 
@@ -174,20 +128,16 @@ export class HomePage implements OnInit {
 
   creditorColor(acreedorId: string): string {
     const colores: Record<string, string> = {
-      'falabella': '#E24B4A',
-      'ripley': '#EF9F27',
-      'cajaAndes': '#378ADD',
-      'bancoEstado': '#1D9E75',
+      'falabella': '#CC4444', 'ripley': '#CC8833',
+      'cajaAndes': '#4488CC', 'bancoEstado': '#339966',
     };
     return colores[acreedorId] || '#6b7280';
   }
 
   creditorIcon(acreedorId: string): string {
     const iconos: Record<string, string> = {
-      'falabella': 'card-outline',
-      'ripley': 'card-outline',
-      'cajaAndes': 'business-outline',
-      'bancoEstado': 'card-outline',
+      'falabella': 'card-outline', 'ripley': 'card-outline',
+      'cajaAndes': 'business-outline', 'bancoEstado': 'card-outline',
     };
     return iconos[acreedorId] || 'business-outline';
   }

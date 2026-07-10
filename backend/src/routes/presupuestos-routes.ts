@@ -7,12 +7,11 @@ import { Presupuesto } from '../entities/presupuesto';
 
 const router = Router();
 
-// ── Instancias ──────────────────────────────
 const presupuestoRepository = AppDataSource.getRepository(Presupuesto);
 const presupuestoService = new PresupuestoService(presupuestoRepository);
 const presupuestoController = new PresupuestoController(presupuestoService);
 
-// ── Rutas ────────────────────────────────────
+
 router.get('/:mes/:año', authenticate, presupuestoController.obtenerPresupuesto.bind(presupuestoController));
 router.post('/', authenticate, presupuestoController.guardarPresupuesto.bind(presupuestoController));
 router.get('/historial', authenticate, presupuestoController.obtenerHistorial.bind(presupuestoController));

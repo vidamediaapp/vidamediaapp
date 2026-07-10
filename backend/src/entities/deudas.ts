@@ -70,6 +70,12 @@ export class Deuda {
   @Column({ name: 'intereses_acumulados', type: 'decimal', precision: 12, scale: 2, default: 0 })
   intereses_acumulados!: number;
 
+  @Column({ name: 'dia_facturacion', type: 'int', nullable: true })
+  diaFacturacion!: number; 
+
+  @Column({ name: 'dia_vencimiento', type: 'int', nullable: true })
+  diaVencimiento!: number;  
+
   @CreateDateColumn({ name: 'creado_en' })
   creadoEn!: Date;
 

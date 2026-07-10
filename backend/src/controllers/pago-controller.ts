@@ -64,4 +64,40 @@ export class PagoController {
             });
         }
     }
+
+    async obtenerTodosPagos(req: Request, res: Response): Promise<void> {
+    try {
+        const usuarioId = req.user?.id;
+        if (!usuarioId) {
+            res.status(401).json({ success: false, message: 'No autorizado' });
+            return;
+        }
+
+        const pagos = await this.pagoService.obtenerTodosPagos(usuarioId);
+        res.status(200).json({ success: true, data: pagos });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al obtener pagos' });
+    }
+}
+
+async eliminarPago(req: Request, res: Response): Promise<void> {
+    try {
+        const usuarioId = req.user?.id;
+        if (!usuarioId) {
+            res.status(401).json({ success: false, message: 'No autorizado' });
+            return;
+        }
+
+        const pagoId = req.params.pagoId as string;
+        const deudaId = req.params.id as string;
+        
+        console.log('Eliminando pago:', { pagoId, deudaId, usuarioId });
+        
+        await this.pagoService.eliminarPago(pagoId, deudaId, usuarioId);
+        res.status(200).json({ success: true, message: 'Pago eliminado' });
+    } catch (error) {
+        console.error('Error al eliminar pago:', error);  // ← Agregar esto
+        res.status(500).json({ success: false, message: 'Error al eliminar pago' });
+    }
+    }
 }

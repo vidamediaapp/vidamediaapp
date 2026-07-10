@@ -5,10 +5,10 @@ import {
 } from '../models/app.model';
 
 const UI_MAP: Record<string, { color: string; iconName: string }> = {
-  falabella:   { color: '#E24B4A', iconName: 'card-outline' },
-  ripley:      { color: '#EF9F27', iconName: 'card-outline' },
-  cajaAndes:   { color: '#378ADD', iconName: 'business-outline' },
-  bancoEstado: { color: '#1D9E75', iconName: 'card-outline' },
+  falabella:   { color: '#CC4444', iconName: 'card-outline' },
+  ripley:      { color: '#CC8833', iconName: 'card-outline' },
+  cajaAndes:   { color: '#4488CC', iconName: 'business-outline' },
+  bancoEstado: { color: '#339966', iconName: 'card-outline' },
 };
 
 @Injectable({ providedIn: 'root' })
@@ -63,6 +63,41 @@ export class AppStore {
     return inc > 0 ? Math.round((this.available() / inc) * 100) : 0;
   });
 
+  // ── Vencimientos ──────────────────────────────────────────────
+  proximoVencimiento(deuda: Deuda): Date {
+    const hoy = new Date();
+    const limite = new Date(deuda.fecha_limite);
+    const diaVencimiento = limite.getDate();
+    const vencimientoEsteMes = new Date(hoy.getFullYear(), hoy.getMonth(), diaVencimiento);
+
+    if (vencimientoEsteMes <= hoy) {
+      return new Date(hoy.getFullYear(), hoy.getMonth() + 1, diaVencimiento);
+    }
+
+    return vencimientoEsteMes;
+  }
+
+  diasParaVencer(deuda: Deuda): number {
+    const hoy = new Date();
+    const vencimiento = this.proximoVencimiento(deuda);
+    return Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  // ── Próximo vencimiento ───────────────────────────────────────
+  readonly nextDue = computed(() => {
+    const pendientes = this._deudas().filter((d: Deuda) => d.estado !== 'pagada');
+    if (!pendientes.length) return null;
+
+    const conDias = pendientes.map(d => ({
+      deuda: d,
+      dias: this.diasParaVencer(d),
+      vencimiento: this.proximoVencimiento(d),
+    }));
+
+    conDias.sort((a, b) => a.dias - b.dias);
+    return conDias[0];
+  });
+
   // ── Distribución ──────────────────────────────────────────────
   readonly distribution = computed(() => {
     const total = this.totalSaldo();
@@ -73,14 +108,6 @@ export class AppStore {
       balance: Number(d.saldo_pendiente) || 0,
       percent: total > 0 ? Math.round(((Number(d.saldo_pendiente) || 0) / total) * 100) : 0,
     }));
-  });
-
-  // ── Próximo vencimiento ───────────────────────────────────────
-  readonly nextDue = computed(() => {
-    const pendientes = this._deudas().filter((d: Deuda) => d.estado !== 'pagada');
-    if (!pendientes.length) return null;
-    return [...pendientes].sort((a: Deuda, b: Deuda) =>
-      new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime())[0];
   });
 
   readonly hasData = computed(() =>

@@ -422,7 +422,7 @@ export class PresupuestoPage implements OnInit, ViewWillEnter {
       return;
     }
 
-    console.log('✅ Creando deuda...');
+    console.log('Creando deuda...');
 
     const updatedDebtsList = [
       ...this.configuredDebts().filter(d => d.id !== id),
@@ -440,7 +440,7 @@ export class PresupuestoPage implements OnInit, ViewWillEnter {
     }
 
     this.configuredDebts.set(updatedDebtsList);
-    console.log('✅ Deuda confirmada. Total:', this.configuredDebts().length);
+    console.log('Deuda confirmada. Total:', this.configuredDebts().length);
     this.cancelSelection();
   }
 

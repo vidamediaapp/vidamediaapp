@@ -113,6 +113,10 @@
           <ion-icon name="time-outline"></ion-icon>
           {{ diasParaVencer(d.fecha_limite) <= 0 ? 'VENCIDA' : diasParaVencer(d.fecha_limite) + ' DIAS' }}
         </span>
+        <!-- Contador de cuotas en la cabecera -->
+        <span class="cuota-contador" *ngIf="getTotalCuotas(d) > 0">
+          {{ getCuotasPagadas(d) }}/{{ getTotalCuotas(d) }}
+        </span>
       </div>
 
       <div class="dc-right">
@@ -140,17 +144,18 @@
           <span>% PAGO MINIMO</span>
           <strong>{{ d.porcentaje_pago_minimo }}%</strong>
         </div>
-        <div class="dc-item" *ngIf="cuotaMensual(d) > 0">
+        <div class="dc-item" *ngIf="getCuotaMensual(d) > 0">
           <span>CUOTA MENSUAL</span>
-          <strong class="teal">{{ cuotaMensual(d) | clp }}</strong>
+          <strong class="teal">{{ getCuotaMensual(d) | clp }}</strong>
         </div>
         <div class="dc-item" *ngIf="d.fecha_limite">
           <span>FECHA LIMITE</span>
           <strong [style.color]="fechaUrgente(d) ? '#E24B4A' : '#e2e8f0'">{{ d.fecha_limite }}</strong>
         </div>
-        <div class="dc-item" *ngIf="d.total_cuotas > 0">
+        <!-- Cuotas con fallback a ambos formatos -->
+        <div class="dc-item" *ngIf="getTotalCuotas(d) > 0">
           <span>CUOTAS</span>
-          <strong>{{ d.cuotas_pagadas }} / {{ d.total_cuotas }}</strong>
+          <strong>{{ getCuotasPagadas(d) }} / {{ getTotalCuotas(d) }}</strong>
         </div>
       </div>
 

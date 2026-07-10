@@ -9,41 +9,40 @@ export class PagoService {
     ) {}
 
     async registrarPago(deudaId: string, monto: number, usuarioId: string): Promise<Pago> {
-        // Verificar que la deuda existe y pertenece al usuario
-        const deuda = await this.deudaRepository.findOne({
-            where: { id: deudaId, usuario: { id: usuarioId } }
-        });
+    const deuda = await this.deudaRepository.findOne({
+        where: { id: deudaId, usuario: { id: usuarioId } }
+    });
 
-        if (!deuda) {
-            throw new Error('Deuda no encontrada o no pertenece al usuario');
-        }
+    if (!deuda) throw new Error('Deuda no encontrada o no pertenece al usuario');
+    if (monto <= 0) throw new Error('El monto debe ser mayor a 0');
+    if (monto > Number(deuda.saldo_pendiente)) throw new Error('El pago no puede superar el saldo pendiente');
 
-        if (monto <= 0) {
-            throw new Error('El monto debe ser mayor a 0');
-        }
+    const pago = this.pagoRepository.create({
+        deuda: { id: deudaId },
+        monto: monto,
+        fechaPago: new Date()
+    });
 
-        if (monto > deuda.saldo_pendiente) {
-            throw new Error('El pago no puede superar el saldo pendiente');
-        }
+    await this.pagoRepository.save(pago);
 
-        // ✅ Crear el pago con los nombres correctos
-        const pago = this.pagoRepository.create({
-            deuda: { id: deudaId },
-            monto: monto,
-            fechaPago: new Date()  // ← CORREGIDO: fechaPago, no fecha_pago
-        });
+  
+    deuda.saldo_pendiente = Math.max(0, Number(deuda.saldo_pendiente) - monto);
 
-        await this.pagoRepository.save(pago);
-
-        // Actualizar el saldo de la deuda
-        deuda.saldo_pendiente = Math.max(0, deuda.saldo_pendiente - monto);
-        if (deuda.saldo_pendiente === 0) {
-            deuda.estado = 'pagada';
-        }
-        await this.deudaRepository.save(deuda);
-
-        return pago;
+    const cuotaMensual = Number((deuda as any).cuotaMensual) || Number((deuda as any).cuota_mensual) || 0;
+    if (cuotaMensual > 0 && monto >= cuotaMensual) {
+    const cuotasCubiertas = Math.floor(monto / cuotaMensual);
+    deuda.cuotasPagadas = (deuda.cuotasPagadas || 0) + cuotasCubiertas;
+}
+    
+    if (Number(deuda.saldo_pendiente) <= 0) {
+        deuda.saldo_pendiente = 0;
+        deuda.estado = 'pagada';
     }
+
+    await this.deudaRepository.save(deuda);
+
+    return pago;
+}
 
     async obtenerPagosDeuda(deudaId: string, usuarioId: string): Promise<Pago[]> {
         const deuda = await this.deudaRepository.findOne({
@@ -56,7 +55,49 @@ export class PagoService {
 
         return await this.pagoRepository.find({
             where: { deuda: { id: deudaId } },
+            relations: { deuda: { acreedor: true } },
             order: { fechaPago: 'DESC' }  
         });
+    }
+
+    async obtenerTodosPagos(usuarioId: string): Promise<Pago[]> {
+        return await this.pagoRepository.find({
+            where: { deuda: { usuario: { id: usuarioId } } },
+            relations: { deuda: { acreedor: true } },
+            order: { fechaPago: 'DESC' }
+        });
+    }
+
+  async eliminarPago(pagoId: string, deudaId: string, usuarioId: string): Promise<void> {
+    const pago = await this.pagoRepository.findOne({
+        where: { 
+            id: pagoId,
+            deuda: { id: deudaId, usuario: { id: usuarioId } } 
+        },
+        relations: { deuda: true }
+    });
+
+    if (!pago) throw new Error('Pago no encontrado');
+
+    const montoPago = Number(pago.monto) || 0;
+    const deuda = pago.deuda;
+    const cuotaMensual = Number((deuda as any).cuotaMensual) || Number((deuda as any).cuota_mensual) || 0;
+
+    deuda.saldo_pendiente = Number(deuda.saldo_pendiente) + montoPago;
+
+    const cuotasCubiertas = cuotaMensual > 0 ? Math.floor(montoPago / cuotaMensual) : 0;
+
+
+    if (cuotasCubiertas > 0 && (deuda.cuotasPagadas || 0) >= cuotasCubiertas) {
+        deuda.cuotasPagadas = (deuda.cuotasPagadas || 0) - cuotasCubiertas;
+    }
+
+  
+    if (Number(deuda.saldo_pendiente) > 0 && deuda.estado === 'pagada') {
+        deuda.estado = 'pendiente';
+    }
+
+    await this.deudaRepository.save(deuda);
+    await this.pagoRepository.remove(pago);
     }
 }

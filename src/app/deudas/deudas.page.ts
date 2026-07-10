@@ -93,12 +93,25 @@ export class DeudasPage {
     return d.estado !== 'pagada' && this.diasParaVencer(d.fecha_limite) <= 7;
   }
 
+  // ── Métodos para obtener campos con camelCase/snake_case ──
+  getTotalCuotas(d: Deuda): number {
+    return Number((d as any).totalCuotas || (d as any).total_cuotas || d.total_cuotas || 12);
+  }
+
+  getCuotasPagadas(d: Deuda): number {
+    return Number((d as any).cuotasPagadas || (d as any).cuotas_pagadas || d.cuotas_pagadas || 0);
+  }
+
+  getCuotaMensual(d: Deuda): number {
+    return Number((d as any).cuotaMensual || (d as any).cuota_mensual || d.cuotaMensual || 0);
+  }
+
   creditorColor(deuda: Deuda): string {
     const colores: Record<string, string> = {
-      'falabella': '#E24B4A',
-      'ripley': '#EF9F27',
-      'cajaAndes': '#378ADD',
-      'bancoEstado': '#1D9E75',
+      'falabella': '#CC4444',
+      'ripley': '#CC8833',
+      'cajaAndes': '#4488CC',
+      'bancoEstado': '#339966',
     };
     return colores[deuda.acreedor.id] || '#6b7280';
   }
@@ -111,10 +124,6 @@ export class DeudasPage {
       'bancoEstado': 'card-outline',
     };
     return iconos[deuda.acreedor.id] || 'card-outline';
-  }
-
-  cuotaMensual(deuda: Deuda): number {
-    return (deuda as any).cuotaMensual || (deuda as any).cuota_mensual || 0;
   }
 
   eliminar(d: Deuda): void {
