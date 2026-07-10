@@ -1,10 +1,30 @@
-$bg-dark:#0d1117;$bg-card:#181c24;$border:rgba(255,255,255,.07);$muted:#6b7280;$text:#e2e8f0;
-$teal:#1D9E75;$teal-bg:rgba(29,158,117,.12);$teal-dim:rgba(29,158,117,.3);
-$danger:#E24B4A;$danger-dim:rgba(226,75,74,.35);$danger-bg:rgba(226,75,74,.08);
+// 1. DECLARACIÓN DE VARIABLES (Obligatorio arriba para evitar "Undefined variable")
+$bg-dark: #0d1117;
+$bg-card: #181c24;
+$border: rgba(255, 255, 255, .07);
+$muted: #6b7280;
+$text: #e2e8f0;
 
-ion-toolbar{--background:#{$bg-dark};--color:#e8f5e9}
+$teal: #1D9E75;
+$teal-bg: rgba(29, 158, 117, .12);
+$teal-dim: rgba(29, 158, 117, .3);
 
-.reg-wrap{padding:0 16px 40px;max-width:480px;margin:0 auto}
+$danger: #E24B4A;
+$danger-dim: rgba(226, 75, 74, .35);
+$danger-bg: rgba(226, 75, 74, .08);
+
+// 2. ESTILOS DE COMPONENTES IONIC
+ion-toolbar {
+  --background: #{$bg-dark};
+  --color: #e8f5e9;
+}
+
+// 3. ENVOLTORIOS Y DISEÑO GENERAL
+.reg-wrap {
+  padding: 0 16px 40px;
+  max-width: 480px;
+  margin: 0 auto;
+}
 
 .brand-logo {
   width: 100px;
@@ -14,76 +34,248 @@ ion-toolbar{--background:#{$bg-dark};--color:#e8f5e9}
   object-fit: contain;
 }
 
-.api-error{
-  display:flex;align-items:center;gap:8px;padding:10px 12px;
-  background:$danger-bg;border:.5px solid $danger-dim;border-radius:10px;
-  font-size:13px;color:$danger;margin-bottom:14px;
-  ion-icon{font-size:16px;flex-shrink:0}
-  span{flex:1}
-  button{background:none;border:none;color:$muted;cursor:pointer;font-size:15px;padding:0}
+// 4. ERRORES DE API
+.api-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: $danger-bg;
+  border: .5px solid $danger-dim;
+  border-radius: 10px;
+  font-size: 13px;
+  color: $danger;
+  margin-bottom: 14px;
+
+  ion-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  span {
+    flex: 1;
+  }
+  button {
+    background: none;
+    border: none;
+    color: $muted;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 0;
+  }
 }
 
-.form-section{
-  background:$bg-card;border-radius:14px;border:.5px solid $border;
-  padding:13px;margin-bottom:10px;
-}
-.section-label{
-  font-size:11px;font-weight:500;color:$muted;text-transform:uppercase;
-  letter-spacing:.5px;margin:0 0 10px;display:flex;align-items:center;gap:5px;
-  ion-icon{font-size:13px}
-}
-
-.vm-field{margin-bottom:10px;&:last-child{margin-bottom:0}}
-.vm-label{
-  display:flex;align-items:center;gap:4px;font-size:12px;color:$muted;margin-bottom:4px;
-  ion-icon{font-size:13px}
-}
-.optional{font-size:10px;color:rgba(107,114,128,.6);margin-left:2px}
-
-.vm-iw{
-  display:flex;align-items:center;background:rgba(255,255,255,.04);
-  border:.5px solid #2a2e35;border-radius:10px;overflow:hidden;transition:border-color .2s;
-  &:focus-within{border-color:$teal}
-  &.invalid{border-color:$danger-dim;background:$danger-bg}
-  &.valid{border-color:rgba(29,158,117,.4)}
-  &.sm{border-radius:8px}
-}
-.inp-icon{font-size:16px;color:$muted;padding:0 8px 0 12px;flex-shrink:0}
-.valid-icon{font-size:16px;color:$teal;padding:0 10px;flex-shrink:0}
-.eye-btn{
-  background:none;border:none;padding:0 12px;cursor:pointer;
-  display:flex;align-items:center;color:$muted;font-size:17px;
-  &:active{color:$teal}
-}
-.vm-inp{
-  flex:1;background:transparent;border:none;outline:none;color:$text;
-  font-size:14px;padding:11px 10px 11px 0;font-family:var(--ion-font-family,sans-serif);min-width:0;
-  &.no-icon{padding-left:12px}
-  &::placeholder{color:#374151}
-}
-.vm-error{
-  display:flex;align-items:center;gap:4px;font-size:11px;color:$danger;margin:4px 0 0 2px;
-  ion-icon{font-size:12px;flex-shrink:0}
-  &.sm{font-size:10px}
+// 5. BLOQUES DE FORMULARIO
+.form-section {
+  background: $bg-card;
+  border-radius: 14px;
+  border: .5px solid $border;
+  padding: 13px;
+  margin-bottom: 10px;
 }
 
-.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  .vm-field{margin-bottom:0}
-  .vm-inp{font-size:13px;padding:9px 8px 9px 10px}
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  ion-icon {
+    font-size: 13px;
+  }
 }
 
-.vm-submit-btn{
-  width:100%;background:$teal;border:none;border-radius:12px;
-  padding:14px;font-size:14px;font-weight:500;color:#04342C;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  gap:8px;margin-top:4px;transition:background .2s;
-  ion-icon{font-size:18px}
-  ion-spinner{--color:#04342C;width:18px;height:18px}
-  &:active{background:#167a5b}
-  &:disabled{background:rgba(29,158,117,.4);cursor:default}
+// 6. CAMPOS DE TEXTO E INPUTS (VM-FIELD)
+.vm-field {
+  margin-bottom: 10px;
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
-.login-row{
-  text-align:center;margin-top:20px;font-size:13px;color:$muted;
-  a{color:$teal;text-decoration:none;font-weight:500;margin-left:6px}
+.vm-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: $muted;
+  margin-bottom: 4px;
+
+  ion-icon {
+    font-size: 13px;
+  }
+}
+
+.optional {
+  font-size: 10px;
+  color: rgba(107, 114, 128, .6);
+  margin-left: 2px;
+}
+
+.vm-iw {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, .04);
+  border: .5px solid #2a2e35;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color .2s;
+
+  &:focus-within {
+    border-color: $teal;
+  }
+  &.invalid {
+    border-color: $danger-dim;
+    background: $danger-bg;
+  }
+  &.valid {
+    border-color: rgba(29, 158, 117, .4);
+  }
+  &.sm {
+    border-radius: 8px;
+  }
+}
+
+.inp-icon {
+  font-size: 16px;
+  color: $muted;
+  padding: 0 8px 0 12px;
+  flex-shrink: 0;
+}
+
+.valid-icon {
+  font-size: 16px;
+  color: $teal;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+
+.eye-btn {
+  background: none;
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: $muted;
+  font-size: 17px;
+
+  &:active {
+    color: $teal;
+  }
+}
+
+.vm-inp {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $text;
+  font-size: 14px;
+  padding: 11px 10px 11px 0;
+  font-family: var(--ion-font-family, sans-serif);
+  min-width: 0;
+
+  &.no-icon {
+    padding-left: 12px;
+  }
+  &::placeholder {
+    color: #374151;
+  }
+}
+
+.vm-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: $danger;
+  margin: 4px 0 0 2px;
+
+  ion-icon {
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  &.sm {
+    font-size: 10px;
+  }
+}
+
+// 7. GRID DE INPUTS DOBLES
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+
+  .vm-field {
+    margin-bottom: 0;
+  }
+  .vm-inp {
+    font-size: 13px;
+    padding: 9px 8px 9px 10px;
+  }
+}
+
+// 8. BOTÓN DE ENVÍO
+.vm-submit-btn {
+  width: 100%;
+  background: $teal;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #04342C;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  transition: all 0.2s ease-in-out;
+
+  ion-icon {
+    font-size: 18px;
+  }
+
+  ion-spinner {
+    --color: #04342C;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:active:not(:disabled) {
+    background: #167a5b;
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background: #233530;
+    color: rgba(255, 255, 255, 0.35);
+    cursor: not-allowed;
+    opacity: 0.85;
+
+    ion-spinner {
+      --color: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+// 9. REPOSITORIO DE ENLACES INFERIORES
+.login-row {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: $muted;
+
+  a {
+    color: $teal;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 6px;
+  }
 }

@@ -1,131 +1,106 @@
 import { Injectable } from '@angular/core';
-import {
-  SimDebt, SimulationResult, StrategyResult,
-  StrategyType, MonthlyProjection,
-} from '../models/simulator.model';
+import { SimDebt, SimulationResult, StrategyResult, MonthlyProjection } from '../models/simulator.model';
 
 @Injectable({ providedIn: 'root' })
 export class DebtStrategyService {
 
-  // ── Bola de nieve: menor saldo primero ───────────────────────────
-  snowball(debts: SimDebt[]): StrategyResult {
-    const ordered = [...debts].sort((a, b) => a.saldo_pendiente - b.saldo_pendiente);
-    return this.buildResult('snowball', ordered);
-  }
+simulate(debt: SimDebt, monthlyPayment: number, extraPayment: number): SimulationResult {
+    const tasaInteres = Number(debt.tasa_interes) || 0;
+    const saldoPendiente = Number(debt.saldo_pendiente) || 0;
+    const tasaMensual = tasaInteres > 10 ? (tasaInteres / 12) / 100 : tasaInteres / 100;
+    const pagoSinExtra = Number(monthlyPayment) || 0;
+    const pagoConExtra = Number(monthlyPayment) + Number(extraPayment);
 
-  // ── Avalancha: mayor tasa de interés primero ─────────────────────
-  avalanche(debts: SimDebt[]): StrategyResult {
-    const ordered = [...debts].sort((a, b) => b.tasa_interes - a.tasa_interes);
-    return this.buildResult('avalanche', ordered);
-  }
+    let saldoSin = saldoPendiente;
+    let saldoCon = saldoPendiente;
+    let totalPagadoSin = 0;
+    let totalPagadoCon = 0;
+    let mesesSin = 0;
+    let mesesCon = 0;
+    const maxMeses = 360;
 
-  // ── Simulador "¿qué pasa si?" ─────────────────────────────────────
-  simulate(
-    debt: SimDebt,
-    monthlyPayment: number,
-    extraPayment: number,
-  ): SimulationResult {
-    // Convertir tasa mensual porcentual a decimal
-    // tasa_interes viene como porcentaje mensual del backend (ej: 2.5 = 2.5%)
-    const rate = debt.tasa_interes / 100;
+    const projection: MonthlyProjection[] = [];
+    const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const hoy = new Date();
 
-    const monthsWithout = this.calcMonths(debt.saldo_pendiente, rate, monthlyPayment);
-    const balanceAfterExtra = Math.max(0, debt.saldo_pendiente - extraPayment);
-    const monthsWith = this.calcMonths(balanceAfterExtra, rate, monthlyPayment);
+    while ((saldoSin > 0 || saldoCon > 0) && (mesesSin < maxMeses || mesesCon < maxMeses)) {
+      const mesActual = Math.max(mesesSin, mesesCon);
+      const mesFecha = new Date(hoy.getFullYear(), hoy.getMonth() + mesActual, 1);
+      const label = `${mesesNombres[mesFecha.getMonth()]} ${mesFecha.getFullYear().toString().slice(-2)}`;
 
-    const totalPaidWithout = monthsWithout < 999
-      ? monthsWithout * monthlyPayment
-      : debt.saldo_pendiente * 3; // estimado si nunca termina
+      if (saldoSin > 0) {
+        mesesSin++;
+        const interesSin = saldoSin * tasaMensual;
+        const pagoEfectivoSin = Math.min(pagoSinExtra, saldoSin + interesSin);
+        saldoSin = saldoSin + interesSin - pagoEfectivoSin;
+        totalPagadoSin += pagoEfectivoSin;
+        if (saldoSin < 0.01) saldoSin = 0;
+      }
 
-    const totalPaidWith = extraPayment + (monthsWith < 999
-      ? monthsWith * monthlyPayment
-      : debt.saldo_pendiente * 3);
+      if (saldoCon > 0) {
+        mesesCon++;
+        const interesCon = saldoCon * tasaMensual;
+        const pagoEfectivoCon = Math.min(pagoConExtra, saldoCon + interesCon);
+        saldoCon = saldoCon + interesCon - pagoEfectivoCon;
+        totalPagadoCon += pagoEfectivoCon;
+        if (saldoCon < 0.01) saldoCon = 0;
+      }
 
-    const interestSavedCLP = Math.max(0, totalPaidWithout - totalPaidWith);
+      projection.push({
+        month: mesActual + 1,
+        label,
+        balanceWithout: Math.round(saldoSin * 100) / 100,
+        balanceWith: Math.round(saldoCon * 100) / 100
+      });
+
+      if (mesesSin >= maxMeses && saldoSin > 0) mesesSin = 999;
+      if (mesesCon >= maxMeses && saldoCon > 0) mesesCon = 999;
+    }
 
     return {
-      monthsWithout,
-      monthsWith,
-      monthsSaved:      Math.max(0, monthsWithout - monthsWith),
-      interestSavedCLP,
-      totalPaidWithout,
-      totalPaidWith,
-      projection: this.buildProjection(
-        debt.saldo_pendiente, balanceAfterExtra, rate, monthlyPayment,
-      ),
+      monthsWithout: mesesSin,
+      monthsWith: mesesCon,
+      monthsSaved: Math.max(0, mesesSin - mesesCon),
+      interestSavedCLP: Math.round((totalPagadoSin - totalPagadoCon) * 100) / 100,
+      totalPaidWithout: Math.round(totalPagadoSin * 100) / 100,
+      totalPaidWith: Math.round(totalPagadoCon * 100) / 100,
+      projection
+    };
+}
+
+  snowball(debts: SimDebt[]): StrategyResult {
+    const sorted = [...debts].sort((a, b) => a.saldo_pendiente - b.saldo_pendiente);
+    return {
+      type: 'snowball',
+      orderedDebts: sorted,
+      totalInterestSaved: 0,
+      estimatedMonths: 0
     };
   }
 
-  // ── Cálculo de meses para liquidar ────────────────────────────────
-  calcMonths(balance: number, monthlyRate: number, payment: number): number {
-    if (balance <= 0) return 0;
-    // Si el pago no cubre los intereses del mes, nunca termina
-    if (payment <= balance * monthlyRate) return 999;
-    return Math.ceil(
-      -Math.log(1 - (balance * monthlyRate) / payment) /
-      Math.log(1 + monthlyRate),
-    );
+  avalanche(debts: SimDebt[]): StrategyResult {
+    const sorted = [...debts].sort((a, b) => b.tasa_interes - a.tasa_interes);
+    return {
+      type: 'avalanche',
+      orderedDebts: sorted,
+      totalInterestSaved: 0,
+      estimatedMonths: 0
+    };
   }
 
-  // ── Proyección mes a mes ──────────────────────────────────────────
-  buildProjection(
-    balanceSin: number,
-    balanceCon: number,
-    rate: number,
-    payment: number,
-    months = 12,
-  ): MonthlyProjection[] {
-    const now  = new Date();
-    const proj: MonthlyProjection[] = [{
-      month: 0, label: 'Hoy',
-      balanceWithout: Math.round(balanceSin),
-      balanceWith:    Math.round(balanceCon),
-    }];
-
-    let sin = balanceSin;
-    let con = balanceCon;
-
-    for (let m = 1; m <= months; m++) {
-      sin = Math.max(0, sin * (1 + rate) - payment);
-      con = Math.max(0, con * (1 + rate) - payment);
-      const d = new Date(now.getFullYear(), now.getMonth() + m, 1);
-      proj.push({
-        month: m,
-        label: d.toLocaleDateString('es-CL', { month: 'short', year: '2-digit' }),
-        balanceWithout: Math.round(sin),
-        balanceWith:    Math.round(con),
-      });
-      if (sin === 0 && con === 0) break;
-    }
-    return proj;
-  }
-
-  // ── Pago mínimo según norma CMF ───────────────────────────────────
-  calcPagoMinimo(saldo: number, pct: number): number {
-    return Math.ceil(saldo * pct / 100);
+  calcPagoMinimo(debt: SimDebt): number {
+    const totalCuotas = Number(debt.totalCuotas) || 12;
+    const cuotasPagadas = Number(debt.cuotasPagadas) || 0;
+    const cuotasRestantes = Math.max(1, totalCuotas - cuotasPagadas);
+    const cuotaBase = debt.saldo_pendiente / cuotasRestantes;
+    const interesMensual = debt.saldo_pendiente * (debt.tasa_interes / 100);
+    const pagoMinimo = cuotaBase + interesMensual;
+    return Math.ceil(pagoMinimo);
   }
 
   formatClp(n: number): string {
     return new Intl.NumberFormat('es-CL', {
       style: 'currency', currency: 'CLP', maximumFractionDigits: 0,
     }).format(n);
-  }
-
-  // ── Privados ──────────────────────────────────────────────────────
-  private buildResult(type: StrategyType, ordered: SimDebt[]): StrategyResult {
-    const estimatedMonths = Math.max(...ordered.map(d => {
-      const rate = d.tasa_interes / 100;
-      return this.calcMonths(d.saldo_pendiente, rate, d.monthlyPayment);
-    }));
-
-    const totalInterestSaved = ordered.reduce((acc, d) => {
-      const rate   = d.tasa_interes / 100;
-      const mMin   = this.calcMonths(d.saldo_pendiente, rate, this.calcPagoMinimo(d.saldo_pendiente, d.porcentaje_pago_minimo));
-      const mOpt   = this.calcMonths(d.saldo_pendiente, rate, d.monthlyPayment);
-      const saving = Math.max(0, mMin * this.calcPagoMinimo(d.saldo_pendiente, d.porcentaje_pago_minimo) - mOpt * d.monthlyPayment);
-      return acc + saving;
-    }, 0);
-
-    return { type, orderedDebts: ordered, totalInterestSaved, estimatedMonths };
   }
 }

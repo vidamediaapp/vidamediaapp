@@ -1,0 +1,399 @@
+// ============================================================
+// DEFENSA - Terminal Social
+// ============================================================
+
+$bg: var(--bg-primary);
+$card: var(--bg-card);
+$border: var(--border-default);
+$muted: var(--text-muted);
+$text: var(--text-primary);
+$teal: #1D9E75;
+$teal-bg: rgba(29, 158, 117, .12);
+$teal-dim: rgba(29, 158, 117, .3);
+$danger: #E24B4A;
+$danger-dim: rgba(226, 75, 74, .35);
+$danger-bg: rgba(226, 75, 74, .06);
+$blue: #378ADD;
+$blue-bg: rgba(55, 138, 221, .1);
+$blue-dim: rgba(55, 138, 221, .3);
+$amber: #EF9F27;
+
+ion-toolbar {
+  --background: var(--bg-surface);
+  --color: var(--text-primary);
+}
+
+// ── Alerta ────────────────────────────────────────────────────
+.alert-ratio {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 10px 12px 0;
+  padding: 10px 12px;
+  background: $danger-bg;
+  border: 1px solid $danger-dim;
+  font-family: var(--ion-font-mono);
+
+  .alert-ico { font-size: 16px; color: $danger; flex-shrink: 0; margin-top: 1px; }
+
+  .alert-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    p { font-size: 11px; font-weight: 500; color: #F09595; margin: 0; }
+    span { font-size: 10px; color: $muted; strong { color: $danger; } }
+  }
+}
+
+// ── Secciones ────────────────────────────────────────────────
+.vm-section { padding: 14px 12px 0; }
+
+.vm-section-label {
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 1.2px;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  ion-icon { font-size: 12px; }
+}
+
+// ── Recomendaciones ──────────────────────────────────────────
+.rec-card {
+  background: $card;
+  border: 1px solid $border;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color .2s;
+
+  &:active { border-color: $teal-dim; }
+}
+
+.rec-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+
+  ion-icon { font-size: 14px; color: $teal; }
+  .rec-tipo {
+    font-family: var(--ion-font-mono);
+    font-size: 8px;
+    color: $teal;
+    letter-spacing: 0.8px;
+  }
+}
+
+.rec-mensaje {
+  font-size: 11px;
+  color: $muted;
+  line-height: 1.5;
+  margin: 0 0 6px;
+}
+
+.rec-accion {
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $blue;
+}
+
+// ── Beneficios ───────────────────────────────────────────────
+.ben-card {
+  background: $card;
+  border: 1px solid $border;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color .2s;
+
+  &:active { border-color: $blue-dim; }
+}
+
+.ben-header { margin-bottom: 6px; }
+
+.ben-fuente {
+  display: inline-block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  padding: 2px 6px;
+  border: 1px solid $blue-dim;
+  color: #86C0F3;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.ben-nombre { font-size: 13px; font-weight: 500; color: $text; }
+
+.ben-desc { font-size: 11px; color: $muted; line-height: 1.5; margin: 0; }
+
+// ── Cards accordion ──────────────────────────────────────────
+.card {
+  background: $card;
+  border: 1px solid $border;
+  margin-bottom: 4px;
+  overflow: hidden;
+  transition: border-color .2s;
+
+  &.open { border-color: $teal-dim; }
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+
+  &:active { background: rgba(255, 255, 255, .02); }
+}
+
+.card-num {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  flex-shrink: 0;
+
+  &.num-red  { background: rgba(226, 75, 74, .15); color: #F09595; }
+  &.num-blue { background: rgba(55, 138, 221, .15); color: #86C0F3; }
+  &.num-teal { background: rgba(29, 158, 117, .15); color: $teal; }
+}
+
+.card-info { flex: 1; min-width: 0; }
+
+.card-title { display: block; font-size: 12px; font-weight: 500; color: $text; margin-bottom: 2px; }
+.card-sub   { display: block; font-size: 10px; color: $muted; }
+.card-chev  { font-size: 14px; color: $muted; flex-shrink: 0; }
+
+.card-body {
+  padding: 0 14px 14px;
+  border-top: 1px solid $border;
+}
+
+.card-desc { font-size: 11px; color: $muted; line-height: 1.5; margin: 10px 0; }
+
+.law-box {
+  background: rgba(55, 138, 221, .06);
+  border: 1px solid $blue-dim;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.law-tag {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: #86C0F3;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.law-text { font-size: 10px; color: $muted; line-height: 1.5; margin: 0; }
+
+.btn-action {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: $teal;
+  border: none;
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: #04342C;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+
+  ion-icon { font-size: 14px; }
+  &:active { background: #167a5b; }
+}
+
+// ── Chatbot ──────────────────────────────────────────────────
+.chat-box {
+  background: $card;
+  border: 1px solid $border;
+  overflow: hidden;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid $border;
+
+  .chat-dot { width: 7px; height: 7px; border-radius: 50%; background: $teal; flex-shrink: 0; }
+  span {
+    font-family: var(--ion-font-mono);
+    font-size: 10px;
+    color: $text;
+    flex: 1;
+  }
+  .chat-badge {
+    font-family: var(--ion-font-mono);
+    font-size: 8px;
+    padding: 2px 6px;
+    border: 1px solid $teal-dim;
+    color: $teal;
+    letter-spacing: 0.5px;
+  }
+}
+
+.chat-msgs {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.msg {
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  max-width: 88%;
+  white-space: pre-line;
+
+  &.bot {
+    background: rgba(255, 255, 255, .03);
+    color: $muted;
+    border: 1px solid $border;
+    align-self: flex-start;
+  }
+  &.user {
+    background: $teal-bg;
+    color: $teal;
+    border: 1px solid $teal-dim;
+    align-self: flex-end;
+  }
+}
+
+.pills-wrap {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 6px 10px 8px;
+  border-top: 1px solid $border;
+}
+
+.pill {
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  padding: 4px 8px;
+  border: 1px solid $border;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+
+  &:active { border-color: $teal-dim; color: $teal; }
+}
+
+// ── SERNAC ───────────────────────────────────────────────────
+.sernac-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: $card;
+  border: 1px solid $border;
+  cursor: pointer;
+  transition: border-color .2s;
+
+  &:active { border-color: $blue; }
+}
+
+.sernac-ic {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 16px; color: #86C0F3; }
+}
+
+.sernac-info {
+  flex: 1;
+
+  span { display: block; font-size: 12px; font-weight: 500; color: $text; margin-bottom: 2px; }
+  p    { font-size: 10px; color: $muted; margin: 0; }
+}
+
+.sernac-arr { font-size: 14px; color: $muted; }
+
+// ── FAQ ──────────────────────────────────────────────────────
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.faq-item {
+  background: $card;
+  border: 1px solid $border;
+  overflow: hidden;
+
+  &.open { border-color: $teal-dim; }
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+
+  ion-icon { font-size: 14px; color: $muted; flex-shrink: 0; }
+  &:active { background: rgba(255, 255, 255, .02); }
+}
+
+.faq-answer {
+  padding: 0 14px 14px;
+  border-top: 1px solid $border;
+
+  p { font-size: 11px; color: $muted; line-height: 1.6; margin: 10px 0; white-space: pre-line; }
+}
+
+.faq-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $teal;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+
+  ion-icon { font-size: 12px; }
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }

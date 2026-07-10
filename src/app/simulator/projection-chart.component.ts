@@ -1,96 +1,169 @@
-import {
-  Component, Input, OnChanges, SimpleChanges,
-  ViewChild, ElementRef, AfterViewInit, OnDestroy,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-// Modelo inline para no depender del path relativo problemático
-export interface MonthlyProjection {
-  month:          number;
-  label:          string;
-  balanceWithout: number;
-  balanceWith:    number;
-}
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { MonthlyProjection } from '../core/models/simulator.model';
 
 @Component({
   selector: 'app-projection-chart',
   standalone: true,
-  imports: [CommonModule],
   template: `
-    <div style="position:relative;height:180px;width:100%">
-      <canvas #canvas role="img" [attr.aria-label]="ariaLabel"></canvas>
+    <div class="chart-legend">
+      <div class="legend-item">
+        <div class="legend-dot gray"></div>
+        <span>Sin pago extra</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot green"></div>
+        <span>Con pago extra</span>
+      </div>
     </div>
-    <div class="legend">
-      <span><span class="dot red"></span>Sin pago extra</span>
-      <span><span class="dot teal"></span>Con pago extra</span>
+    <div class="chart-container">
+      <canvas #chartCanvas></canvas>
     </div>
   `,
   styles: [`
-    .legend { display:flex; gap:16px; margin-top:8px; font-size:11px; color:#6b7280; }
-    .dot    { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; }
-    .dot.red  { background:#A32D2D; }
-    .dot.teal { background:#1D9E75; }
+    .chart-legend { display: flex; gap: 16px; margin-bottom: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8a969c; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .legend-dot.gray { background: #5a666c; }
+    .legend-dot.green { background: #1db954; }
+    .chart-container { width: 100%; height: 220px; position: relative; }
+    canvas { width: 100% !important; height: 100% !important; }
   `],
 })
-export class ProjectionChartComponent implements AfterViewInit, OnChanges, OnDestroy {
+export class ProjectionChartComponent implements OnChanges, AfterViewInit {
   @Input() projection: MonthlyProjection[] = [];
-  @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('chartCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  private chart: any;
-  private ChartLib: any;
-
-  get ariaLabel(): string {
-    return `Proyección de deuda en ${this.projection.length} meses`;
-  }
-
-  async ngAfterViewInit(): Promise<void> {
-    // Importación dinámica de Chart.js para evitar errores de build
-    const { Chart, registerables } = await import('chart.js');
-    Chart.register(...registerables);
-    this.ChartLib = Chart;
-    this.build();
-  }
+  ngAfterViewInit(): void { this.renderChart(); }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['projection'] && this.chart) this.update();
+    if (changes['projection'] && this.canvasRef) this.renderChart();
   }
 
-  ngOnDestroy(): void { this.chart?.destroy(); }
+  private renderChart(): void {
+    if (!this.canvasRef || !this.projection || this.projection.length === 0) return;
 
-  private build(): void {
-    if (!this.ChartLib || !this.canvasRef) return;
-    const ctx = this.canvasRef.nativeElement.getContext('2d')!;
-    this.chart = new this.ChartLib(ctx, {
-      type: 'bar',
-      data: this.data(),
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 }, maxRotation: 0 } },
-          y: { display: false },
-        },
-      },
-    });
+    const canvas = this.canvasRef.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const width = rect.width;
+    const height = rect.height;
+    const padding = { top: 20, right: 20, bottom: 35, left: 55 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    const maxBalance = Math.max(
+      this.projection[0]?.balanceWithout || 0,
+      this.projection[0]?.balanceWith || 0
+    );
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Grid
+    const gridLines = 4;
+    for (let i = 0; i <= gridLines; i++) {
+      const y = padding.top + (chartHeight / gridLines) * i;
+      ctx.strokeStyle = '#2a3338';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+
+      const value = maxBalance - (maxBalance / gridLines) * i;
+      ctx.fillStyle = '#5a666c';
+      ctx.font = '10px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(this.formatCurrency(value), padding.left - 8, y + 4);
+    }
+
+    this.drawLine(ctx, 'balanceWithout', '#5a666c', maxBalance, chartWidth, chartHeight, padding);
+    this.drawLine(ctx, 'balanceWith', '#1db954', maxBalance, chartWidth, chartHeight, padding);
+    this.drawZeroMarker(ctx, 'balanceWith', '#1db954', chartWidth, chartHeight, padding);
   }
 
-  private data() {
-    return {
-      labels: this.projection.map(p => p.label),
-      datasets: [
-        { label: 'Sin extra', data: this.projection.map(p => p.balanceWithout), backgroundColor: '#A32D2D', borderRadius: 4, borderSkipped: false },
-        { label: 'Con extra', data: this.projection.map(p => p.balanceWith),    backgroundColor: '#1D9E75', borderRadius: 4, borderSkipped: false },
-      ],
-    };
+  private drawLine(
+    ctx: CanvasRenderingContext2D, field: 'balanceWithout' | 'balanceWith',
+    color: string, maxBalance: number, chartWidth: number, chartHeight: number, padding: any
+  ): void {
+    const data = this.projection;
+
+    const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+    if (field === 'balanceWith') {
+      gradient.addColorStop(0, 'rgba(29, 185, 84, 0.15)');
+      gradient.addColorStop(1, 'rgba(29, 185, 84, 0)');
+    } else {
+      gradient.addColorStop(0, 'rgba(90, 102, 108, 0.08)');
+      gradient.addColorStop(1, 'rgba(90, 102, 108, 0)');
+    }
+
+    ctx.beginPath();
+    let firstPoint = true;
+    for (let i = 0; i < data.length; i++) {
+      const x = padding.left + (chartWidth / Math.max(data.length - 1, 1)) * i;
+      const balance = Math.max(0, data[i][field]);
+      const y = padding.top + chartHeight - (balance / maxBalance) * chartHeight;
+      if (firstPoint) { ctx.moveTo(x, y); firstPoint = false; }
+      else { ctx.lineTo(x, y); }
+    }
+    const lastX = padding.left + chartWidth;
+    ctx.lineTo(lastX, padding.top + chartHeight);
+    ctx.lineTo(padding.left, padding.top + chartHeight);
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    ctx.beginPath();
+    firstPoint = true;
+    for (let i = 0; i < data.length; i++) {
+      const x = padding.left + (chartWidth / Math.max(data.length - 1, 1)) * i;
+      const balance = Math.max(0, data[i][field]);
+      const y = padding.top + chartHeight - (balance / maxBalance) * chartHeight;
+      if (firstPoint) { ctx.moveTo(x, y); firstPoint = false; }
+      else { ctx.lineTo(x, y); }
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
   }
 
-  private update(): void {
-    if (!this.chart) return;
-    const d = this.data();
-    this.chart.data.labels           = d.labels;
-    this.chart.data.datasets[0].data = d.datasets[0].data;
-    this.chart.data.datasets[1].data = d.datasets[1].data;
-    this.chart.update('active');
+  private drawZeroMarker(
+    ctx: CanvasRenderingContext2D, field: 'balanceWithout' | 'balanceWith',
+    color: string, chartWidth: number, chartHeight: number, padding: any
+  ): void {
+    const data = this.projection;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][field] <= 0) {
+        const x = padding.left + (chartWidth / Math.max(data.length - 1, 1)) * i;
+        const y = padding.top + chartHeight;
+        ctx.shadowColor = 'rgba(29, 185, 84, 0.5)';
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('✓', x, y + 3);
+        ctx.fillStyle = '#1db954';
+        ctx.font = 'bold 10px Inter, system-ui, sans-serif';
+        ctx.fillText(`Mes ${i + 1}`, x, y + 18);
+        break;
+      }
+    }
+  }
+
+  private formatCurrency(value: number): string {
+    if (value >= 1_000_000) return '$' + (value / 1_000_000).toFixed(1) + 'M';
+    if (value >= 1_000) return '$' + (value / 1_000).toFixed(0) + 'K';
+    return '$' + value.toFixed(0);
   }
 }

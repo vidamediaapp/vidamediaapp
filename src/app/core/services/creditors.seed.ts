@@ -1,10 +1,8 @@
 import { Acreedor } from '../models/app.model';
 
-// IDs deben coincidir con los que devuelve GET /api/acreedores
-// Si el backend usa UUIDs, reemplazar estos valores con los reales
 export const CREDITORS_SEED: Acreedor[] = [
-  { id: 'falabella',    nombre: 'Falabella CMR',  tipo: 'retail', color: '#E24B4A', iconName: 'storefront-outline' },
-  { id: 'ripley',       nombre: 'Ripley',          tipo: 'retail', color: '#EF9F27', iconName: 'cart-outline'       },
-  { id: 'cajaAndes',    nombre: 'Caja Los Andes',  tipo: 'caja',   color: '#378ADD', iconName: 'business-outline'   },
-  { id: 'bancoEstado',  nombre: 'BancoEstado',     tipo: 'banco',  color: '#1D9E75', iconName: 'card-outline'       },
+  { id: 'falabella',   nombreComercial: 'Falabella CMR',  tipo: 'retail', tasaInteresTipica: 44, porcentajePagoMinimo: 3, nivelAdvertencia: 'alto',  notaEducativa: '', color: '#E24B4A', iconName: 'storefront-outline' },
+  { id: 'ripley',      nombreComercial: 'Ripley',         tipo: 'retail', tasaInteresTipica: 38, porcentajePagoMinimo: 3, nivelAdvertencia: 'alto',  notaEducativa: '', color: '#EF9F27', iconName: 'cart-outline'       },
+  { id: 'cajaAndes',   nombreComercial: 'Caja Los Andes', tipo: 'caja',   tasaInteresTipica: 18, porcentajePagoMinimo: 3, nivelAdvertencia: 'medio', notaEducativa: '', color: '#378ADD', iconName: 'business-outline'   },
+  { id: 'bancoEstado', nombreComercial: 'BancoEstado',    tipo: 'banco',  tasaInteresTipica: 12, porcentajePagoMinimo: 3, nivelAdvertencia: 'bajo',  notaEducativa: '', color: '#1D9E75', iconName: 'card-outline'       },
 ];

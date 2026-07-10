@@ -1,29 +1,30 @@
 export type StrategyType = 'snowball' | 'avalanche';
 export type EstadoDeuda  = 'pendiente' | 'pagada' | 'vencida';
 
-// ── Deuda que llega del store / backend ───────────────────────────
 export interface SimDebt {
-  creditorId:             string;
-  creditorName:           string;
-  creditorColor:          string;
-  monto_original:         number;
-  saldo_pendiente:        number;
-  tasa_interes:           number;   // % mensual, ej: 2.5
-  porcentaje_pago_minimo: number;   // % del saldo, ej: 3
-  fecha_limite:           string;
-  estado:                 EstadoDeuda;
-  monthlyPayment:         number;
+  debtId: string;
+  creditorId: string;
+  creditorName: string;
+  creditorColor: string;
+  monto_original: number;
+  saldo_pendiente: number;
+  tasa_interes: number;
+  porcentaje_pago_minimo: number;
+  fecha_limite: string;
+  estado: string;
+  monthlyPayment: number;
+  totalCuotas: number;
+  cuotasPagadas: number;
+  cuotaMensual: number;
 }
 
-// ── Punto de proyección mes a mes ─────────────────────────────────
 export interface MonthlyProjection {
-  month:          number;
-  label:          string;
-  balanceWithout: number;  // sin pago extra
-  balanceWith:    number;  // con pago extra
+  month: number;
+  label: string;
+  balanceWithout: number;
+  balanceWith: number;
 }
 
-// ── Resultado de simulación ───────────────────────────────────────
 export interface SimulationResult {
   monthsWithout:    number;
   monthsWith:       number;
@@ -34,7 +35,6 @@ export interface SimulationResult {
   projection:       MonthlyProjection[];
 }
 
-// ── Resultado de estrategia ───────────────────────────────────────
 export interface StrategyResult {
   type:               StrategyType;
   orderedDebts:       SimDebt[];
@@ -42,20 +42,25 @@ export interface StrategyResult {
   estimatedMonths:    number;
 }
 
-// ── DTO para POST /simulator/project ─────────────────────────────
 export interface ProjectDto {
-  debtId:             string;
-  saldo_pendiente:    number;
-  tasa_interes:       number;
-  monthlyPayment:     number;
-  extraPayment:       number;
+  debtId: string;
+  saldo_pendiente: number;
+  tasa_interes: number;
+  monthlyPayment: number;
+  extraPayment: number;
 }
 
-// ── Respuesta del backend ─────────────────────────────────────────
 export interface ProjectResponse {
-  monthsWithout:    number;
-  monthsWith:       number;
-  monthsSaved:      number;
+  deudaId: string;
+  monthsWithout: number;
+  monthsWith: number;
+  monthsSaved: number;
+  totalPaidWithout: number;
+  totalPaidWith: number;
   interestSavedCLP: number;
-  projection:       MonthlyProjection[];
+  esTrampa: boolean;
+  pagoMinimoCMF: number;
+  faseCMF: number;
+  paidPercent: number;
+  projection: MonthlyProjection[];
 }

@@ -1,0 +1,132 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Defensa</ion-title>
+    <ion-buttons slot="end">
+      <ion-icon name="shield-outline" style="font-size:20px;color:#1D9E75;margin-right:14px"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- ALERTA DE RATIO -->
+  <div class="alert-ratio" *ngIf="showAlert()">
+    <ion-icon name="alert-circle-outline" class="alert-ico"></ion-icon>
+    <div class="alert-body">
+      <p>Tu deuda supera tu ingreso anual</p>
+      <span>Ratio actual: <strong>{{ ratioActual() }}</strong> · Tienes derechos legales disponibles. Revisa las opciones abajo.</span>
+    </div>
+  </div>
+
+  <!-- RECOMENDACIONES -->
+  <section class="vm-section" *ngIf="recomendaciones().length > 0">
+    <p class="vm-section-label">
+      <ion-icon name="information-circle-outline"></ion-icon>Recomendaciones para ti
+    </p>
+    <div class="rec-card" *ngFor="let r of recomendaciones()" (click)="handleRecomendacion(r)">
+      <div class="rec-header">
+        <ion-icon [name]="r.tipo === 'insolvencia' ? 'document-text-outline' : 'shield-outline'"></ion-icon>
+        <span class="rec-tipo">{{ r.tipo === 'insolvencia' ? 'Insolvencia' : 'Renegociacion' }}</span>
+      </div>
+      <p class="rec-mensaje">{{ r.mensaje }}</p>
+      <span class="rec-accion">{{ r.accion }} →</span>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section class="vm-section" *ngIf="beneficios().length > 0">
+    <p class="vm-section-label">
+      <ion-icon name="shield-outline"></ion-icon>Beneficios disponibles
+    </p>
+    <div class="ben-card" *ngFor="let b of beneficios()" (click)="handleBeneficio(b)">
+      <div class="ben-header">
+        <span class="ben-fuente">{{ b.fuente }}</span>
+        <h3 class="ben-nombre">{{ b.nombre }}</h3>
+      </div>
+      <p class="ben-desc">{{ b.descripcion }}</p>
+    </div>
+  </section>
+
+  <!-- SITUACIONES LEGALES -->
+  <section class="vm-section">
+    <p class="vm-section-label">
+      <ion-icon name="document-text-outline"></ion-icon>Situaciones legales
+    </p>
+    <div *ngFor="let s of situaciones" class="card" [class.open]="isOpen(s.id)">
+      <div class="card-head" (click)="toggle(s.id)">
+        <div class="card-num" [class]="colorClass(s.color)">{{ s.numero }}</div>
+        <div class="card-info">
+          <span class="card-title">{{ s.titulo }}</span>
+          <span class="card-sub">{{ s.subtitulo }}</span>
+        </div>
+        <ion-icon [name]="isOpen(s.id) ? 'chevron-up-outline' : 'chevron-down-outline'" class="card-chev"></ion-icon>
+      </div>
+      <div class="card-body" *ngIf="isOpen(s.id)">
+        <p class="card-desc">{{ s.descripcion }}</p>
+        <div class="law-box">
+          <span class="law-tag">{{ s.ley }}</span>
+          <p class="law-text">{{ s.textoLey }}</p>
+        </div>
+        <button class="btn-action" (click)="handleAction(s)">
+          <ion-icon name="open-outline"></ion-icon>
+          {{ s.accionLabel }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASISTENTE LEGAL (CHAT) -->
+  <section class="vm-section" style="padding-bottom: 32px">
+    <p class="vm-section-label">
+      <ion-icon name="chatbubble-outline"></ion-icon>Asistente legal
+    </p>
+
+    <div class="chat-box">
+      <div class="chat-header">
+        <div class="chat-dot"></div>
+        <span>Asistente de defensa</span>
+        <div class="chat-badge">Selecciona una opcion</div>
+      </div>
+
+      <div class="chat-msgs">
+        <div class="msg bot">
+          Hola, soy tu asistente legal. Selecciona una de las preguntas abajo para obtener informacion sobre tus derechos como deudor.
+        </div>
+        <div *ngFor="let m of messages()"
+             class="msg"
+             [class.bot]="m.role === 'bot'"
+             [class.user]="m.role === 'user'">
+          {{ m.text }}
+        </div>
+        <div #chatEnd></div>
+      </div>
+
+      <div class="pills-wrap">
+        <button class="pill" *ngFor="let p of quickPills" (click)="sendPill(p)">
+          {{ p }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESO DIRECTO -->
+  <section class="vm-section" style="padding-bottom: 32px">
+    <p class="vm-section-label">
+      <ion-icon name="open-outline"></ion-icon>Acceso directo
+    </p>
+    <button class="sernac-btn" (click)="openSernac()">
+      <div class="sernac-ic">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+      <div class="sernac-info">
+        <span>Ir a SERNAC.cl</span>
+        <p>Presentar reclamo o consultar tus derechos</p>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="sernac-arr"></ion-icon>
+    </button>
+  </section>
+
+</ion-content>

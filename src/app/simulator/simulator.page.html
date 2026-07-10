@@ -3,31 +3,28 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Simulador</ion-title>
+    <ion-title>SIMULADOR</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
   <div class="cmf-badge">
-    <ion-icon name="information-circle-outline"></ion-icon>
+    <ion-icon name="information-outline"></ion-icon>
     <span>{{ cmfPhase.label }} — {{ cmfPhase.description }}</span>
   </div>
 
   <div class="empty-state" *ngIf="simDebts().length === 0">
     <ion-icon name="calculator-outline"></ion-icon>
-    <h2>Sin deudas registradas</h2>
+    <h2>SIN DEUDAS REGISTRADAS</h2>
     <p>Ingresa tu presupuesto mensual para usar el simulador.</p>
   </div>
 
   <ng-container *ngIf="simDebts().length > 0">
 
     <!-- SELECTOR DE DEUDA -->
-    <section class="vm-section">
-      <p class="vm-section-label">
-        <ion-icon name="trending-down-outline"></ion-icon>
-        Selecciona una deuda
-      </p>
+    <div class="section-wrap">
+      <span class="section-label">SELECCIONAR DEUDA</span>
       <div class="debt-tabs">
         <button
           *ngFor="let d of simDebts(); let i = index"
@@ -39,32 +36,33 @@
           <span class="tab-balance">{{ d.saldo_pendiente | clp }}</span>
         </button>
       </div>
-    </section>
+    </div>
 
-    <!-- SLIDERS -->
-    <section class="vm-section" *ngIf="activeDebt() as debt">
-      <p class="vm-section-label">
-        <ion-icon name="calculator-outline"></ion-icon>
-        ¿Qué pasa si…?
-      </p>
+    <!-- SLIDER -->
+    <div class="section-wrap" *ngIf="activeDebt() as debt">
+      <span class="section-label">SIMULAR PAGO</span>
 
       <div class="vm-card">
         <div class="debt-header">
           <div class="dh-dot" [style.background]="debt.creditorColor"></div>
-          <div>
+          <div class="dh-info">
             <span class="dh-name">{{ debt.creditorName }}</span>
             <span class="dh-detail">
-              Saldo: {{ debt.saldo_pendiente | clp }} ·
-              Tasa: {{ debt.tasa_interes }}% mensual
+              DEBE: {{ debt.saldo_pendiente | clp }} · TASA: {{ debt.tasa_interes }}% · CUOTA: {{ debt.monthlyPayment | clp }}
             </span>
           </div>
         </div>
 
-        <!-- Cuota mensual -->
+        <div class="min-payment-box">
+          <span class="mp-label">PAGO MINIMO SUGERIDO</span>
+          <span class="mp-value">{{ formatClp(pagoMinimoCmf()) }}</span>
+          <span class="mp-hint">Si pagas menos, los intereses superan tu pago y la deuda crece.</span>
+        </div>
+
         <div class="slider-block">
-          <div class="slider-label">
-            <span>Cuota mensual</span>
-            <strong>{{ formatClp(monthlyPayment()) }}</strong>
+          <div class="slider-row">
+            <span class="slider-label">¿CUANTO PUEDES PAGAR AL MES?</span>
+            <span class="slider-value">{{ formatClp(monthlyPayment()) }}</span>
           </div>
           <ion-range
             [value]="monthlyPayment()"
@@ -73,156 +71,159 @@
             [step]="MONTHLY_STEP"
             (ionInput)="onMonthlyChange($event)"
             color="primary">
+            <ion-label slot="start">{{ formatClp(MONTHLY_MIN) }}</ion-label>
+            <ion-label slot="end">{{ formatClp(MONTHLY_MAX) }}</ion-label>
           </ion-range>
-          <div class="slider-hint">
-            Pago mínimo CMF ({{ cmfPhase.label }}):
-            <strong>{{ formatClp(pagoMinimoCmf()) }}</strong>
-          </div>
         </div>
-
-        <!-- Pago extra -->
-        <div class="slider-block">
-          <div class="slider-label">
-            <span>Pago extra hoy</span>
-            <strong class="teal">{{ formatClp(extraPayment()) }}</strong>
-          </div>
-          <ion-range
-            [value]="extraPayment()"
-            [min]="EXTRA_MIN"
-            [max]="EXTRA_MAX"
-            [step]="EXTRA_STEP"
-            (ionInput)="onExtraChange($event)"
-            color="success">
-          </ion-range>
-          <div class="slider-hint">Simula usar aguinaldo, bono o entrada extraordinaria.</div>
-        </div>
-
-        <button class="api-btn" (click)="projectWithApi()" [disabled]="loadingApi()">
-          <ion-spinner name="crescent" *ngIf="loadingApi()"></ion-spinner>
-          <ion-icon name="refresh-outline" *ngIf="!loadingApi()"></ion-icon>
-          {{ loadingApi() ? 'Calculando en servidor…' : 'Proyectar con servidor' }}
-        </button>
 
         <div class="api-info" *ngIf="!usingLocal()">
-          <ion-icon name="information-circle-outline"></ion-icon>
-          Resultado confirmado por el servidor
+          <ion-icon name="cloud-outline"></ion-icon>
+          Calculo confirmado por el servidor
         </div>
         <div class="api-error-inline" *ngIf="apiError()">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          {{ apiError() }} — usando cálculo local.
+          <ion-icon name="warning-outline"></ion-icon>
+          {{ apiError() }}
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- RESULTADO -->
-    <section class="vm-section" *ngIf="simulationResult() as result">
-      <p class="vm-section-label">
-        <ion-icon name="trending-down-outline"></ion-icon>
-        Resultado
-      </p>
+    <div class="section-wrap" *ngIf="displayResult() as result">
+      <span class="section-label">RESULTADO</span>
 
-      <div class="vm-card">
-        <div class="result-grid">
-          <div class="result-col">
-            <span class="result-label">Sin pago extra</span>
-            <span class="result-value">
-              {{ result.monthsWithout >= 999 ? '∞' : result.monthsWithout + ' meses' }}
-            </span>
-            <span class="result-sub">{{ formatClp(result.totalPaidWithout) }}</span>
-          </div>
-          <div class="result-arrow">→</div>
-          <div class="result-col">
-            <span class="result-label">Con pago extra</span>
-            <span class="result-value teal">
-              {{ result.monthsWith >= 999 ? '∞' : result.monthsWith + ' meses' }}
-            </span>
-            <span class="result-sub">{{ formatClp(result.totalPaidWith) }}</span>
-          </div>
-        </div>
-
-        <div class="saving-banner" *ngIf="result.monthsSaved > 0">
-          <ion-icon name="trending-down-outline"></ion-icon>
-          <div>
-            <strong>{{ result.monthsSaved }} meses menos</strong>
-            <span>Ahorras {{ formatClp(result.interestSavedCLP) }} en intereses</span>
-          </div>
-        </div>
-        <div class="saving-banner warning" *ngIf="result.monthsSaved === 0 && extraPayment() === 0">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          <span>Mueve el slider de pago extra para ver el ahorro potencial.</span>
-        </div>
-        <div class="saving-banner danger" *ngIf="result.monthsWithout >= 999">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          <span>La cuota no cubre los intereses. Auméntala.</span>
+      <div class="trap-alert" *ngIf="result.monthsWithout >= 999 || result.esTrampa">
+        <ion-icon name="warning-outline"></ion-icon>
+        <div>
+          <span class="trap-title">ESCENARIO TRAMPA</span>
+          <p>Con este pago, los intereses mensuales ({{ formatClp(debtInteresMensual()) }}) superan tu cuota. La deuda no se reduce.</p>
+          <p class="trap-solution">Sube el slider a al menos <strong>{{ formatClp(pagoMinimoCmf()) }}</strong> para reducir tu deuda.</p>
         </div>
       </div>
 
-      <!-- Gráfico -->
-      <div class="vm-card" style="margin-top:8px">
-        <p class="vm-section-label" style="margin-bottom:8px">
-          <ion-icon name="calendar-outline"></ion-icon>
-          Proyección mes a mes
+      <div class="vm-card" *ngIf="result.monthsWithout < 999 && !result.esTrampa">
+        <div class="result-hero">
+          <span class="result-number">{{ result.monthsWithout }}</span>
+          <span class="result-unit">MESES</span>
+        </div>
+        <p class="result-summary">
+          Pagando <strong>{{ formatClp(monthlyPayment()) }}</strong> al mes,
+          terminaras en <strong>{{ result.monthsWithout }} meses</strong>
+          ({{ (result.monthsWithout / 12) | number:'1.1-1' }} años).
         </p>
+
+        <div class="result-details">
+          <div class="rd-row">
+            <span>Total a pagar</span>
+            <strong>{{ formatClp(result.totalPaidWithout) }}</strong>
+          </div>
+          <div class="rd-row">
+            <span>Deuda original</span>
+            <strong>{{ formatClp(activeDebt().saldo_pendiente || 0) }}</strong>
+          </div>
+          <div class="rd-row highlight">
+            <span>Intereses</span>
+            <strong class="danger">{{ formatClp(result.totalPaidWithout - (activeDebt().saldo_pendiente || 0)) }}</strong>
+          </div>
+        </div>
+
+        <div class="comparison-box" *ngIf="comparacionPagoMinimo() as comp">
+          <span class="comp-label">COMPARADO CON EL PAGO MINIMO ({{ formatClp(pagoMinimoCmf()) }})</span>
+          <div class="comp-row">
+            <span>Pagando el minimo tardarias</span>
+            <strong>{{ comp.mesesMinimo >= 999 ? '∞' : comp.mesesMinimo + ' meses' }}</strong>
+          </div>
+          <div class="comp-row">
+            <span>Con tu pago tardarias</span>
+            <strong>{{ comp.mesesPropuesto }} meses</strong>
+          </div>
+          <div class="comp-row">
+            <span>Ahorras en intereses</span>
+            <strong class="teal">{{ formatClp(comp.interesesAhorrados) }}</strong>
+          </div>
+          <div class="comp-row">
+            <span>Adelantas tu libertad</span>
+            <strong class="teal">{{ comp.mesesAhorrados }} meses</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="vm-card" *ngIf="result.monthsWithout < 999 && !result.esTrampa">
+        <span class="section-label" style="margin-bottom:8px">PROYECCION MENSUAL</span>
         <app-projection-chart [projection]="result.projection"></app-projection-chart>
       </div>
-    </section>
 
-    <!-- ESTRATEGIA DE SALIDA -->
-    <section class="vm-section">
-      <p class="vm-section-label">
-        <ion-icon name="trending-down-outline"></ion-icon>
-        Estrategia de salida
-      </p>
+      <div class="action-buttons">
+        <button class="sim-btn primary" (click)="saveSimulation()" [disabled]="savingSimulation() || simulationSaved()">
+          <ion-icon [name]="simulationSaved() ? 'checkmark-circle-outline' : 'save-outline'"></ion-icon>
+          {{ simulationSaved() ? 'GUARDADO' : savingSimulation() ? 'GUARDANDO...' : 'GUARDAR SIMULACION' }}
+        </button>
+        <button class="sim-btn" (click)="clearSimulation()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          NUEVA SIMULACION
+        </button>
+      </div>
+    </div>
+
+    <!-- ESTRATEGIA (siempre visible) -->
+    <div class="section-wrap">
+      <span class="section-label">ESTRATEGIA DE PAGO</span>
+
+      <div class="recomendacion-banner">
+        <ion-icon name="information-outline"></ion-icon>
+        <span>{{ mensajeRecomendacion() }}</span>
+      </div>
 
       <ion-segment [value]="activeStrategy()" (ionChange)="onStrategyChange($event)">
         <ion-segment-button value="snowball">
-          <ion-label>❄️ Bola de nieve</ion-label>
+          <ion-label>BOLA DE NIEVE</ion-label>
         </ion-segment-button>
         <ion-segment-button value="avalanche">
-          <ion-label>🏔 Avalancha</ion-label>
+          <ion-label>AVALANCHA</ion-label>
         </ion-segment-button>
       </ion-segment>
 
       <div class="strategy-desc">{{ strategyDesc(activeStrategy()) }}</div>
 
-      <div class="vm-card" *ngIf="strategyResult() as strat">
+      <div class="vm-card" *ngIf="simulacionEstrategia() as sim">
+        <div class="strategy-summary">
+          <div class="ss-row">
+            <span>Tiempo estimado total</span>
+            <strong>{{ sim.mesesTotales }} meses</strong>
+          </div>
+          <div class="ss-row">
+            <span>Intereses totales</span>
+            <strong class="danger">{{ formatClp(sim.interesesTotales) }}</strong>
+          </div>
+          <div class="ss-row">
+            <span>Pago total</span>
+            <strong>{{ formatClp(sim.pagoTotal) }}</strong>
+          </div>
+        </div>
+
         <div class="strategy-row"
-             *ngFor="let d of strat.orderedDebts; let i = index; let last = last"
+             *ngFor="let d of sim.deudasOrdenadas; let i = index; let last = last"
              [class.no-border]="last">
           <div class="priority-badge" [style.background]="d.creditorColor">{{ i + 1 }}</div>
           <div class="strategy-info">
             <span class="strategy-name">{{ d.creditorName }}</span>
             <span class="strategy-detail">
-              {{ activeStrategy() === 'snowball'
-                  ? (d.saldo_pendiente | clp) + ' de saldo'
-                  : d.tasa_interes + '% mensual' }}
+              {{ activeStrategy() === 'snowball' ? (d.saldo_pendiente | clp) : d.tasa_interes + '% mensual' }}
             </span>
           </div>
           <div class="strategy-tag" [class.first]="i === 0">
-            {{ i === 0 ? 'Primero' : 'Después' }}
-          </div>
-        </div>
-
-        <div class="strategy-summary">
-          <div class="ss-row">
-            <span>Tiempo estimado</span>
-            <strong>{{ strat.estimatedMonths >= 999 ? '∞' : strat.estimatedMonths + ' meses' }}</strong>
-          </div>
-          <div class="ss-row">
-            <span>Ahorro vs pago mínimo</span>
-            <strong class="teal">{{ formatClp(strat.totalInterestSaved) }}</strong>
+            {{ i === 0 ? 'PRIMERO' : 'DESPUES' }}
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- CRONOGRAMA CMF -->
-    <section class="vm-section" style="padding-bottom:32px">
-      <p class="vm-section-label">
-        <ion-icon name="calendar-outline"></ion-icon>
-        Cronograma norma CMF 2026–2028
-      </p>
+    <div class="section-wrap" style="padding-bottom:32px">
+      <span class="section-label">CRONOGRAMA CMF 2026-2028</span>
       <div class="vm-card">
+        <p class="cmf-explanation">
+          La CMF exige que los bancos informen el pago minimo real. Desde 2026, el pago minimo subira gradualmente para protegerte del sobreendeudamiento.
+        </p>
         <div class="cmf-row"
              *ngFor="let phase of cmfPhases; let last = last"
              [class.active]="phase.validFrom === cmfPhase.validFrom"
@@ -232,13 +233,13 @@
             <span class="cmf-label">{{ phase.label }}</span>
             <span class="cmf-desc">{{ phase.description }}</span>
           </div>
-          <div class="cmf-date">{{ phase.validFrom | date:'MMM yyyy':'':'es-CL' }}</div>
+          <div class="cmf-date">{{ phase.validFrom | date:'MMM yyyy' }}</div>
           <div class="cmf-pct" [class.active]="phase.validFrom === cmfPhase.validFrom">
             {{ phase.minPaymentFactor * 100 | number:'1.0-0' }}%
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
   </ng-container>
 

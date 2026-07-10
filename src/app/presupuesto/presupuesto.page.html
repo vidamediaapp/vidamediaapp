@@ -3,316 +3,271 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Presupuesto mensual</ion-title>
+    <ion-title>PRESUPUESTO</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <!-- ══ ERROR DE API ══ -->
   <div class="api-error" *ngIf="apiError()">
-    <ion-icon name="alert-circle-outline"></ion-icon>
+    <ion-icon name="warning-outline"></ion-icon>
     <span>{{ apiError() }}</span>
     <button (click)="apiError.set(null)">✕</button>
   </div>
 
-  <!-- ══ SECCIÓN 1: INGRESOS ══ -->
-  <section class="vm-section" [formGroup]="incomeForm">
-    <p class="vm-section-label">
-      <ion-icon name="wallet-outline"></ion-icon>
-      Ingreso mensual
-    </p>
+  <!-- INGRESOS -->
+  <div class="section-wrap" [formGroup]="incomeForm">
+    <span class="section-label">INGRESO MENSUAL</span>
     <div class="vm-card">
-      <div class="vm-field">
-        <label class="vm-label">
-          <ion-icon name="cash-outline"></ion-icon>Sueldo líquido
-        </label>
-        <div class="vm-iw">
-          <span class="vm-px">$</span>
-          <input type="number" inputmode="numeric" placeholder="Ej: 850000"
-                 formControlName="salary" class="vm-inp">
-          <span class="vm-sx">CLP</span>
+      <div class="input-group">
+        <label class="input-label">SUELDO LIQUIDO</label>
+        <div class="input-field">
+          <span class="input-prefix">$</span>
+          <input type="number" inputmode="numeric" placeholder="Ej: 850000" formControlName="salario" class="input-control">
+          <span class="input-suffix">CLP</span>
         </div>
       </div>
-      <div class="vm-field" style="margin-bottom:0">
-        <label class="vm-label">
-          <ion-icon name="add-outline"></ion-icon>
-          Ingresos extra <span class="optional">(opcional)</span>
-        </label>
-        <div class="vm-iw">
-          <span class="vm-px">$</span>
-          <input type="number" inputmode="numeric" placeholder="Bonos, comisiones…"
-                 formControlName="extras" class="vm-inp">
-          <span class="vm-sx">CLP</span>
+      <div class="input-group" style="margin-bottom:0">
+        <label class="input-label">INGRESOS EXTRA <span class="optional">(OPCIONAL)</span></label>
+        <div class="input-field">
+          <span class="input-prefix">$</span>
+          <input type="number" inputmode="numeric" placeholder="Bonos, comisiones..." formControlName="extras" class="input-control">
+          <span class="input-suffix">CLP</span>
         </div>
       </div>
-      <div class="bsum">
-        <div class="bsc"><span class="bsl">Total</span><span class="bsv teal">{{ totalIncome() | clp }}</span></div>
-        <div class="bsd"></div>
-        <div class="bsc"><span class="bsl">Comprometido</span><span class="bsv warn">{{ totalCommitted() | clp }}</span></div>
-        <div class="bsd"></div>
-        <div class="bsc r"><span class="bsl">Disponible</span><span class="bsv" [class]="availableClass()">{{ available() | clp }}</span></div>
+      <div class="summary-panel">
+        <div class="summary-item">
+          <span class="summary-value teal">{{ totalIncome() | clp }}</span>
+          <span class="summary-label">TOTAL</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-value warn">{{ totalCommitted() | clp }}</span>
+          <span class="summary-label">COMPROMETIDO</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-value" [class.ok]="availableClass() === 'ok'" [class.over]="availableClass() === 'over'">{{ available() | clp }}</span>
+          <span class="summary-label">DISPONIBLE</span>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ══ SECCIÓN 2: SELECTOR EN CASCADA ══ -->
-  <section class="vm-section">
-    <p class="vm-section-label">
-      <ion-icon name="receipt-outline"></ion-icon>
-      Deudas por acreedor
-    </p>
+  <!-- DEUDAS -->
+  <div class="section-wrap">
+    <span class="section-label">DEUDAS POR ACREEDOR</span>
 
-    <!-- Acreedores ya configurados -->
-    <div *ngFor="let d of configuredDebts()">
-      <div class="conf-card">
-        <div class="cc-header">
-          <div class="cc-icon" [style.background]="d.acreedor.color + '1A'">
-            <ion-icon [name]="d.acreedor.iconName" [style.color]="d.acreedor.color"></ion-icon>
-          </div>
-          <div class="cc-info">
-            <span class="cc-name">{{ d.acreedor.nombre }}</span>
-            <div class="cc-pills">
-              <span class="pill" [style.background]="estadoColor(d.form.value.estado) + '22'"
-                    [style.color]="estadoColor(d.form.value.estado)">
-                {{ d.form.value.estado }}
-              </span>
-              <span class="pill blue">Tasa {{ d.form.value.tasa_interes }}%</span>
-              <span class="pill muted">Mín. {{ d.form.value.porcentaje_pago_minimo }}%</span>
-            </div>
-          </div>
-          <button class="cc-rm" (click)="removeConfigured(d.id)">
+    <div *ngFor="let d of configuredDebts()" class="configured-card">
+      <div class="conf-header">
+        <div class="conf-creditor">
+          <div class="conf-dot" [style.background]="d.acreedor.color"></div>
+          <span class="conf-name">{{ d.acreedor.nombreComercial }}</span>
+        </div>
+        <div class="conf-actions">
+          <span class="conf-payment">{{ d.paymentForm.value.monthlyPayment | clp }}/MES</span>
+          <button class="conf-remove" (click)="promptDelete(d.uid)">
             <ion-icon name="close-circle-outline"></ion-icon>
           </button>
         </div>
-
-        <div class="cc-amounts">
-          <div class="cc-amt-col">
-            <span class="cc-amt-lbl">Monto original</span>
-            <span class="cc-amt-val">{{ d.form.value.monto_original | clp }}</span>
-          </div>
-          <div class="cc-amt-col">
-            <span class="cc-amt-lbl">Saldo pendiente</span>
-            <span class="cc-amt-val warn">{{ d.form.value.saldo_pendiente | clp }}</span>
-          </div>
-          <div class="cc-amt-col">
-            <span class="cc-amt-lbl">Cuota mensual</span>
-            <span class="cc-amt-val teal">{{ d.paymentForm.value.monthlyPayment | clp }}</span>
-          </div>
+      </div>
+      <div class="conf-progress" *ngIf="debtPct(d.debtForm) > 0">
+        <div class="conf-progress-header">
+          <span>{{ d.debtForm.value.cuotas_pagadas }}/{{ d.debtForm.value.total_cuotas }} CUOTAS</span>
+          <span [style.color]="d.acreedor.color">{{ debtPct(d.debtForm) }}%</span>
         </div>
-
-        <div class="cc-row-detail" *ngIf="d.form.value.fecha_limite">
-          <ion-icon name="calendar-outline"></ion-icon>
-          <span>Vence: <strong>{{ d.form.value.fecha_limite }}</strong></span>
-          <span class="cc-pago-min">Pago mín: {{ pagoMinimo(d.form) | clp }}</span>
-        </div>
-
-        <div class="cc-prog" *ngIf="debtPct(d.form) > 0">
-          <div class="cc-prog-row">
-            <span class="cc-prog-lbl">Pagado: {{ saldoLabel(d.form) }}</span>
-            <span class="cc-prog-pct" [style.color]="d.acreedor.color">{{ debtPct(d.form) }}%</span>
-          </div>
-          <div class="cc-track">
-            <div class="cc-fill" [style.width]="debtPct(d.form)+'%'" [style.background]="d.acreedor.color"></div>
-          </div>
+        <div class="conf-progress-track">
+          <div class="conf-progress-fill" [style.width]="debtPct(d.debtForm)+'%'" [style.background]="d.acreedor.color"></div>
         </div>
       </div>
     </div>
 
-    <!-- Botón trigger -->
-    <button class="casc-trig"
+    <button class="dropdown-trigger"
             [class.open]="dropdownOpen()"
             [class.disabled]="availableCreditors().length === 0"
             (click)="toggleDropdown()"
             [disabled]="availableCreditors().length === 0">
-      <ion-icon name="add-outline" class="trig-ic"></ion-icon>
-      <span>{{ availableCreditors().length === 0 ? 'Todos los acreedores configurados' : 'Seleccionar acreedor' }}</span>
-      <ion-icon [name]="dropdownOpen() ? 'chevron-up-outline' : 'chevron-down-outline'" class="trig-chev"></ion-icon>
+      <ion-icon name="add-outline" class="trigger-icon"></ion-icon>
+      <span>{{ availableCreditors().length === 0 ? 'TODOS CONFIGURADOS' : 'SELECCIONAR ACREEDOR' }}</span>
+      <ion-icon [name]="dropdownOpen() ? 'chevron-up-outline' : 'chevron-down-outline'" class="trigger-chev"></ion-icon>
     </button>
 
-    <!-- Dropdown -->
-    <div class="casc-drop" *ngIf="dropdownOpen()">
-      <button class="casc-opt" *ngFor="let c of availableCreditors()" (click)="selectCreditor(c.id)">
-        <div class="opt-ic" [style.background]="c.color + '1A'">
+    <div class="dropdown-list" *ngIf="dropdownOpen()">
+      <button class="dropdown-option" *ngFor="let c of availableCreditors()" (click)="selectCreditor(c.id)">
+        <div class="option-icon" [style.background]="c.color + '1A'">
           <ion-icon [name]="c.iconName" [style.color]="c.color"></ion-icon>
         </div>
-        <div class="opt-inf">
-          <span class="opt-n">{{ c.nombre }}</span>
-          <span class="opt-s">{{ c.tipo }}</span>
+        <div class="option-info">
+          <span class="option-name">{{ c.nombreComercial }}</span>
+          <span class="option-detail">CAE {{ c.tasaInteresTipica }}% · {{ c.tipo }}</span>
         </div>
-        <ion-icon name="chevron-forward-outline" class="opt-arr"></ion-icon>
+        <ion-icon name="chevron-forward-outline" class="option-arrow"></ion-icon>
       </button>
     </div>
 
-    <!-- ══ FORMULARIO EN CASCADA ══ -->
-    <div class="casc-form" *ngIf="selectedCreditor() && activeCreditorObj() as cred">
-
-      <div class="cf-header">
-        <div class="cf-ic" [style.background]="cred.color + '1A'">
-          <ion-icon [name]="cred.iconName" [style.color]="cred.color"></ion-icon>
+    <div class="cascade-form" *ngIf="selectedCreditor() && activeCreditorObj() as cred">
+      <div class="cascade-header">
+        <div class="cascade-creditor">
+          <div class="cascade-dot" [style.background]="cred.color"></div>
+          <span class="cascade-name">{{ cred.nombreComercial }}</span>
         </div>
-        <div class="cf-tit">
-          <span class="cf-name">{{ cred.nombre }}</span>
-          <span class="cf-sub">Completa los datos de la deuda</span>
-        </div>
-        <button class="cf-canc" (click)="cancelSelection()">
+        <button class="cascade-cancel" (click)="cancelSelection()">
           <ion-icon name="close-circle-outline"></ion-icon>
         </button>
       </div>
 
-      <!-- Cuota mensual (campo del frontend) -->
-      <div class="vm-field" *ngIf="activePaymentForm() as pf" [formGroup]="pf">
-        <label class="vm-label"><ion-icon name="cash-outline"></ion-icon>Cuota mensual</label>
-        <div class="vm-iw" [class.invalid]="pf.get('monthlyPayment')?.invalid && pf.get('monthlyPayment')?.touched">
-          <span class="vm-px">$</span>
-          <input type="number" inputmode="numeric" placeholder="Ej: 50000" formControlName="monthlyPayment" class="vm-inp">
-          <span class="vm-sx">CLP/mes</span>
+      <ng-container *ngIf="activeDebtForm() as df">
+        <div [formGroup]="df">
+
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">MONTO ORIGINAL</label>
+              <div class="input-field">
+                <span class="input-prefix">$</span>
+                <input type="number" inputmode="numeric" placeholder="0" formControlName="monto_original" class="input-control">
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">SALDO PENDIENTE</label>
+              <div class="input-field" [class.invalid]="df.get('saldo_pendiente')?.errors?.['saldoExceedsMonto']">
+                <span class="input-prefix">$</span>
+                <input type="number" inputmode="numeric" placeholder="0" formControlName="saldo_pendiente" class="input-control">
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">TOTAL CUOTAS <span class="required">*</span></label>
+              <div class="input-field">
+                <input type="number" inputmode="numeric" placeholder="12" formControlName="total_cuotas" class="input-control" required>
+                <span class="input-suffix">CTAS</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">CUOTAS PAGADAS</label>
+              <div class="input-field">
+                <input type="number" inputmode="numeric" placeholder="0" formControlName="cuotas_pagadas" class="input-control">
+                <span class="input-suffix">CTAS</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">TASA INTERES <span class="auto-tag">AUTO</span></label>
+              <div class="input-field readonly">
+                <input type="number" inputmode="decimal" placeholder="2.5" formControlName="tasa_interes" class="input-control" readonly>
+                <span class="input-suffix">% MENS.</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">% PAGO MINIMO <span class="auto-tag">AUTO</span></label>
+              <div class="input-field readonly">
+                <input type="number" inputmode="decimal" placeholder="3" formControlName="porcentaje_pago_minimo" class="input-control" readonly>
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">FECHA LIMITE</label>
+              <div class="input-field">
+                <input type="date" formControlName="fecha_limite" class="input-control date-control">
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">ESTADO</label>
+              <div class="input-field select-field">
+                <select formControlName="estado" class="input-control">
+                  <option value="pendiente">PENDIENTE</option>
+                  <option value="pagada">PAGADA</option>
+                  <option value="vencida">VENCIDA</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="calculated-box" *ngIf="cuotaMensualCalculada() > 0">
+            <div class="calc-row">
+              <span>CUOTA MENSUAL ESTIMADA</span>
+              <strong>{{ cuotaMensualCalculada() | clp }}</strong>
+            </div>
+            <div class="calc-row">
+              <span>CUOTAS RESTANTES</span>
+              <strong>{{ (df.value.total_cuotas || 0) - (df.value.cuotas_pagadas || 0) }}</strong>
+            </div>
+            <p class="calc-hint">Calculada con sistema frances. Si tu cuota real es diferente, editala abajo.</p>
+          </div>
+
+          <div class="progress-preview" *ngIf="debtPct(df) >= 0">
+            <div class="progress-header">
+              <span>PROGRESO DE PAGO</span>
+              <span [style.color]="cred.color">{{ debtPct(df) }}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" [style.width]="debtPct(df)+'%'" [style.background]="cred.color"></div>
+            </div>
+            <div class="progress-detail">
+              <span>CUOTA: {{ pagoMinimo(df) | clp }}</span>
+              <span class="progress-separator">·</span>
+              <span>RESTAN: {{ (df.value.total_cuotas || 0) - (df.value.cuotas_pagadas || 0) }} CUOTAS</span>
+            </div>
+          </div>
+
         </div>
-        <p class="vm-error" *ngIf="pf.get('monthlyPayment')?.invalid && pf.get('monthlyPayment')?.touched">
-          <ion-icon name="alert-circle-outline"></ion-icon> Ingresa una cuota válida
-        </p>
-      </div>
-
-      <div class="cf-divider"><span>Datos de la deuda <span class="opt-tag">(modelo Deuda)</span></span></div>
-
-      <!-- Campos del modelo Deuda -->
-      <ng-container *ngIf="activeDebtForm() as df" [formGroup]="df">
-
-        <!-- Monto original + Saldo pendiente -->
-        <div class="fg2">
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="card-outline"></ion-icon>Monto original</label>
-            <div class="vm-iw sm" [class.invalid]="df.get('monto_original')?.invalid && df.get('monto_original')?.touched">
-              <span class="vm-px">$</span>
-              <input type="number" inputmode="numeric" placeholder="0" formControlName="monto_original" class="vm-inp">
-            </div>
-            <p class="vm-error sm" *ngIf="df.get('monto_original')?.invalid && df.get('monto_original')?.touched">
-              <ion-icon name="alert-circle-outline"></ion-icon> Requerido
-            </p>
-          </div>
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="trending-down-outline"></ion-icon>Saldo pendiente</label>
-            <div class="vm-iw sm" [class.invalid]="df.get('saldo_pendiente')?.errors?.['saldoExceedsMonto'] && df.get('saldo_pendiente')?.touched">
-              <span class="vm-px">$</span>
-              <input type="number" inputmode="numeric" placeholder="0" formControlName="saldo_pendiente" class="vm-inp">
-            </div>
-            <p class="vm-error sm" *ngIf="df.get('saldo_pendiente')?.errors?.['saldoExceedsMonto']">
-              <ion-icon name="alert-circle-outline"></ion-icon> Mayor al monto
-            </p>
-          </div>
-        </div>
-
-        <!-- Tasa interés + % pago mínimo -->
-        <div class="fg2">
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="trending-down-outline"></ion-icon>Tasa interés</label>
-            <div class="vm-iw sm" [class.invalid]="df.get('tasa_interes')?.invalid && df.get('tasa_interes')?.touched">
-              <input type="number" inputmode="decimal" placeholder="Ej: 2.5" formControlName="tasa_interes" class="vm-inp" style="padding-left:12px">
-              <span class="vm-sx">% mensual</span>
-            </div>
-            <p class="vm-error sm" *ngIf="df.get('tasa_interes')?.invalid && df.get('tasa_interes')?.touched">
-              <ion-icon name="alert-circle-outline"></ion-icon> 0–100%
-            </p>
-          </div>
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="reorder-four-outline"></ion-icon>% pago mínimo</label>
-            <div class="vm-iw sm" [class.invalid]="df.get('porcentaje_pago_minimo')?.invalid && df.get('porcentaje_pago_minimo')?.touched">
-              <input type="number" inputmode="decimal" placeholder="Ej: 3" formControlName="porcentaje_pago_minimo" class="vm-inp" style="padding-left:12px">
-              <span class="vm-sx">%</span>
-            </div>
-            <p class="vm-error sm" *ngIf="df.get('porcentaje_pago_minimo')?.invalid && df.get('porcentaje_pago_minimo')?.touched">
-              <ion-icon name="alert-circle-outline"></ion-icon> 0–100%
-            </p>
-          </div>
-        </div>
-
-        <!-- Fecha límite + Estado -->
-        <div class="fg2">
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="calendar-outline"></ion-icon>Fecha límite</label>
-            <div class="vm-iw sm" [class.invalid]="df.get('fecha_limite')?.invalid && df.get('fecha_limite')?.touched">
-              <input type="date" formControlName="fecha_limite" class="vm-inp date-inp" [min]="todayDate()">
-            </div>
-            <p class="vm-error sm" *ngIf="df.get('fecha_limite')?.invalid && df.get('fecha_limite')?.touched">
-              <ion-icon name="alert-circle-outline"></ion-icon> Requerida
-            </p>
-          </div>
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="time-outline"></ion-icon>Estado</label>
-            <div class="vm-select-wrap">
-              <select formControlName="estado" class="vm-select">
-                <option value="pendiente">Pendiente</option>
-                <option value="pagada">Pagada</option>
-                <option value="vencida">Vencida</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cuotas totales + pagadas -->
-        <div class="fg2">
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="reorder-four-outline"></ion-icon>Cuotas totales</label>
-            <div class="vm-iw sm">
-              <input type="number" inputmode="numeric" placeholder="12" formControlName="cuotas_totales" class="vm-inp" style="padding-left:12px">
-              <span class="vm-sx">ctas</span>
-            </div>
-          </div>
-          <div class="vm-field">
-            <label class="vm-label"><ion-icon name="checkmark-outline"></ion-icon>Cuotas pagadas</label>
-            <div class="vm-iw sm" [class.invalid]="df.get('cuotas_pagadas')?.errors?.['exceedsTotal']">
-              <input type="number" inputmode="numeric" placeholder="0" formControlName="cuotas_pagadas" class="vm-inp" style="padding-left:12px">
-              <span class="vm-sx">ctas</span>
-            </div>
-            <p class="vm-error sm" *ngIf="df.get('cuotas_pagadas')?.errors?.['exceedsTotal']">
-              <ion-icon name="alert-circle-outline"></ion-icon> Mayor al total
-            </p>
-          </div>
-        </div>
-
-        <!-- Preview de progreso -->
-        <div class="prog-prev" *ngIf="debtPct(df) > 0">
-          <div class="pp-row">
-            <span class="pp-lbl">Pagado: {{ saldoLabel(df) }}</span>
-            <span class="pp-pct" [style.color]="activeCreditorObj()?.color">{{ debtPct(df) }}%</span>
-          </div>
-          <div class="pp-track">
-            <div class="pp-fill" [style.width]="debtPct(df)+'%'" [style.background]="activeCreditorObj()?.color"></div>
-          </div>
-          <div class="pp-detail">
-            <span>Pago mínimo mensual: {{ pagoMinimo(df) | clp }}</span>
-          </div>
-        </div>
-
       </ng-container>
 
-      <button class="cf-btn" (click)="confirmCreditor()">
+      <div class="cascade-divider"><span>PAGO MENSUAL</span></div>
+
+      <div class="input-group" *ngIf="activePaymentForm() as pf" [formGroup]="pf">
+        <label class="input-label">¿CUANTO PAGARAS AL MES?</label>
+        <div class="input-field" [class.invalid]="pf.get('monthlyPayment')?.invalid && pf.get('monthlyPayment')?.touched">
+          <span class="input-prefix">$</span>
+          <input type="number" inputmode="numeric" placeholder="Ej: 50000" formControlName="monthlyPayment" class="input-control">
+          <span class="input-suffix">CLP/MES</span>
+        </div>
+        <div class="input-hint" *ngIf="cuotaMensualCalculada() > 0">
+          <ion-icon name="calculator-outline"></ion-icon>
+          Cuota sugerida: <strong>{{ cuotaMensualCalculada() | clp }}</strong>
+        </div>
+      </div>
+
+      <button type="button" class="cascade-btn" (click)="confirmCreditor()">
         <ion-icon name="checkmark-outline"></ion-icon>
-        Confirmar {{ activeCreditorObj()?.nombre }}
+        CONFIRMAR {{ cred.nombreComercial }}
       </button>
     </div>
 
-    <!-- Totales -->
-    <div class="vm-totals" *ngIf="configuredDebts().length > 0">
-      <div class="vm-total-row" *ngFor="let d of configuredDebts()">
-        <span>{{ d.acreedor.nombre }}</span>
+    <div class="totals-panel" *ngIf="configuredDebts().length > 0">
+      <div class="totals-row" *ngFor="let d of configuredDebts()">
+        <span>{{ d.acreedor.nombreComercial }}</span>
         <span [style.color]="d.acreedor.color">{{ d.paymentForm.value.monthlyPayment | clp }}</span>
       </div>
-      <div class="vm-total-row main">
-        <span>Total comprometido</span>
+      <div class="totals-divider"></div>
+      <div class="totals-row main">
+        <span>TOTAL COMPROMETIDO</span>
         <span class="teal">{{ totalCommitted() | clp }}</span>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ══ BOTÓN GUARDAR ══ -->
-  <div class="vm-save-wrap">
-    <button class="vm-save-btn" (click)="onSave()" [disabled]="saving() || saved()">
-      <ion-spinner name="crescent" *ngIf="saving()"></ion-spinner>
+  <div class="save-wrap">
+    <button class="save-btn" (click)="onSave()" [disabled]="saving() || saved()">
       <ion-icon [name]="saved() ? 'checkmark-circle-outline' : 'save-outline'" *ngIf="!saving()"></ion-icon>
-      {{ saving() ? 'Guardando en servidor…' : saved() ? '¡Guardado! Volviendo…' : 'Guardar presupuesto' }}
+      {{ saving() ? 'GUARDANDO...' : saved() ? 'GUARDADO' : 'GUARDAR PRESUPUESTO' }}
     </button>
   </div>
 
   <div style="height:32px"></div>
+
+  <ion-alert
+    [isOpen]="deleteConfirmOpen()"
+    header="ELIMINAR DEUDA"
+    [message]="deleteMessage()"
+    [buttons]="alertButtons"
+    (didDismiss)="deleteConfirmOpen.set(false)">
+  </ion-alert>
+
 </ion-content>

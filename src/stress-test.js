@@ -5,7 +5,7 @@ export const options = {
   stages: [
     { duration: '30s', target: 10 },  // Sube rápido a 10 usuarios
     { duration: '1m', target: 50 },   // Sube a 50 usuarios concurrentes intentando loguearse
-    { duration: '30s', target: 0 },   // Baja a 0
+    { duration: '20s', target: 0 },   // Baja a 0
   ],
 };
 
@@ -15,8 +15,8 @@ export default function () {
   
   // 2. Datos ficticios que el test enviará simulando el formulario
   const payload = JSON.stringify({
-    email: 'test-estres@correo.cl',
-    password: 'PasswordSegura123!'
+    email: 'nuevo@mail.com',
+    password: '12345678'
   });
 
   const params = {

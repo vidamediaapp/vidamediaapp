@@ -1,0 +1,179 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>MIS DEUDAS</ion-title>
+    <ion-buttons slot="end">
+      <span class="header-count" *ngIf="vencidasCount() > 0">
+        <ion-icon name="warning-outline"></ion-icon>
+        {{ vencidasCount() }} VENCIDA{{ vencidasCount() > 1 ? 'S' : '' }}
+      </span>
+      <a routerLink="/presupuesto" class="add-fab">
+        <ion-icon name="add-outline"></ion-icon>
+      </a>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div class="empty-state" *ngIf="allDebts().length === 0">
+    <ion-icon name="card-outline"></ion-icon>
+    <h2>SIN DEUDAS REGISTRADAS</h2>
+    <p>Ve a Presupuesto para agregar tus acreedores y deudas.</p>
+    <a routerLink="/presupuesto" class="empty-cta">
+      <ion-icon name="add-outline"></ion-icon>AGREGAR DEUDA
+    </a>
+  </div>
+
+  <ng-container *ngIf="allDebts().length > 0">
+
+    <div class="sync-hint">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <span>Deudas sincronizadas desde tu presupuesto</span>
+    </div>
+
+    <div class="resumen-grid">
+      <div class="res-card">
+        <span class="res-lbl">TOTAL DEUDA</span>
+        <span class="res-val red">{{ totalOriginal() | clp }}</span>
+      </div>
+      <div class="res-card">
+        <span class="res-lbl">PAGADO</span>
+        <span class="res-val teal">{{ totalPagado() | clp }}</span>
+      </div>
+      <div class="res-card">
+        <span class="res-lbl">PENDIENTES</span>
+        <span class="res-val">{{ pendientesCount() }}</span>
+      </div>
+    </div>
+
+    <div class="filters-row">
+      <button class="filter-btn" [class.active]="activeFilter() === 'todas'" (click)="setFilter('todas')">
+        TODAS ({{ allDebts().length }})
+      </button>
+      <button class="filter-btn" [class.active]="activeFilter() === 'pendiente'" (click)="setFilter('pendiente')">
+        PENDIENTES
+      </button>
+      <button class="filter-btn warn" [class.active]="activeFilter() === 'vencida'" (click)="setFilter('vencida')">
+        VENCIDAS
+      </button>
+      <button class="filter-btn ok" [class.active]="activeFilter() === 'pagada'" (click)="setFilter('pagada')">
+        PAGADAS
+      </button>
+    </div>
+
+    <div class="empty-filter" *ngIf="filteredDebts().length === 0">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <p>SIN DEUDAS EN ESTA CATEGORIA</p>
+    </div>
+
+    <ng-container *ngIf="retailDebts().length > 0">
+      <p class="group-label"><ion-icon name="card-outline"></ion-icon>RETAIL</p>
+      <ng-container *ngFor="let d of retailDebts()">
+        <ng-container *ngTemplateOutlet="deudaCard; context: { d: d }"></ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="bancoDebts().length > 0">
+      <p class="group-label"><ion-icon name="business-outline"></ion-icon>BANCO / CAJA</p>
+      <ng-container *ngFor="let d of bancoDebts()">
+        <ng-container *ngTemplateOutlet="deudaCard; context: { d: d }"></ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="otherDebts().length > 0">
+      <p class="group-label"><ion-icon name="card-outline"></ion-icon>OTROS</p>
+      <ng-container *ngFor="let d of otherDebts()">
+        <ng-container *ngTemplateOutlet="deudaCard; context: { d: d }"></ng-container>
+      </ng-container>
+    </ng-container>
+
+    <div style="height:32px"></div>
+  </ng-container>
+
+</ion-content>
+
+<ng-template #deudaCard let-d="d">
+  <div class="deuda-card" [class.expanded]="isExpanded(d.id)" [class.vencida]="d.estado === 'vencida'">
+
+    <div class="dc-head" (click)="toggle(d.id)">
+      <div class="dc-icon" [style.background]="creditorColor(d) + '1A'">
+        <ion-icon [name]="creditorIcon(d)" [style.color]="creditorColor(d)"></ion-icon>
+      </div>
+
+      <div class="dc-info">
+        <span class="dc-name">{{ d.acreedor.nombreComercial }}</span>
+        <div class="dc-track">
+          <div class="dc-fill" [style.width]="debtPct(d) + '%'" [style.background]="creditorColor(d)"></div>
+        </div>
+        <span class="estado-pill" [class]="d.estado">{{ estadoLabel(d.estado) }}</span>
+        <span class="fecha-urgente" *ngIf="fechaUrgente(d)">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ diasParaVencer(d.fecha_limite) <= 0 ? 'VENCIDA' : diasParaVencer(d.fecha_limite) + ' DIAS' }}
+        </span>
+      </div>
+
+      <div class="dc-right">
+        <span class="dc-balance">{{ d.saldo_pendiente | clp }}</span>
+        <span class="dc-pct" [style.color]="creditorColor(d)">{{ debtPct(d) }}%</span>
+        <ion-icon [name]="isExpanded(d.id) ? 'chevron-up-outline' : 'chevron-down-outline'" class="dc-chev"></ion-icon>
+      </div>
+    </div>
+
+    <div class="dc-detail" *ngIf="isExpanded(d.id)">
+      <div class="dc-grid">
+        <div class="dc-item">
+          <span>MONTO ORIGINAL</span>
+          <strong>{{ d.monto_original | clp }}</strong>
+        </div>
+        <div class="dc-item">
+          <span>SALDO PENDIENTE</span>
+          <strong [style.color]="d.estado === 'vencida' ? '#E24B4A' : '#e2e8f0'">{{ d.saldo_pendiente | clp }}</strong>
+        </div>
+        <div class="dc-item">
+          <span>TASA MENSUAL</span>
+          <strong>{{ d.tasa_interes }}%</strong>
+        </div>
+        <div class="dc-item">
+          <span>% PAGO MINIMO</span>
+          <strong>{{ d.porcentaje_pago_minimo }}%</strong>
+        </div>
+        <div class="dc-item" *ngIf="cuotaMensual(d) > 0">
+          <span>CUOTA MENSUAL</span>
+          <strong class="teal">{{ cuotaMensual(d) | clp }}</strong>
+        </div>
+        <div class="dc-item" *ngIf="d.fecha_limite">
+          <span>FECHA LIMITE</span>
+          <strong [style.color]="fechaUrgente(d) ? '#E24B4A' : '#e2e8f0'">{{ d.fecha_limite }}</strong>
+        </div>
+        <div class="dc-item" *ngIf="d.total_cuotas > 0">
+          <span>CUOTAS</span>
+          <strong>{{ d.cuotas_pagadas }} / {{ d.total_cuotas }}</strong>
+        </div>
+      </div>
+
+      <div class="edu-nota" *ngIf="d.acreedor.notaEducativa">
+        <ion-icon name="warning-outline"></ion-icon>
+        <span>{{ d.acreedor.notaEducativa }}</span>
+      </div>
+
+      <div class="dc-actions">
+        <button class="act-btn danger" (click)="eliminar(d)">
+          <ion-icon name="trash-outline"></ion-icon>
+          ELIMINAR
+        </button>
+        <button class="act-btn" routerLink="/presupuesto">
+          <ion-icon name="create-outline"></ion-icon>
+          EDITAR
+        </button>
+        <button class="act-btn primary" (click)="irAlSimulador()">
+          <ion-icon name="calculator-outline"></ion-icon>
+          SIMULAR
+        </button>
+      </div>
+    </div>
+
+  </div>
+</ng-template>

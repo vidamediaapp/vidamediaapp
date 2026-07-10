@@ -70,26 +70,25 @@ export class LoginPage {
 
   togglePass(): void { this.showPass.update(v => !v); }
 
-  onSubmit(): void {
+  onSubmit() {
     this.submitted.set(true);
     this.apiError.set(null);
-    this.form.markAllAsTouched();
+
     if (this.form.invalid) return;
 
     this.loading.set(true);
 
-    this.auth.login({
-      email:    this.form.value.email!,
-      password: this.form.value.password!,
-    }).subscribe({
+    const { email, password } = this.form.value;
+
+    this.auth.login({ email: email!, password: password! }).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigate(['/home']);
       },
       error: (err) => {
         this.loading.set(false);
-        this.apiError.set(err.message);
-      },
+        this.apiError.set(err?.message || 'Credenciales incorrectas o servidor caído.');
+      }
     });
   }
 }

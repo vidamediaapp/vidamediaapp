@@ -35,3 +35,45 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+// ============================================================
+// VIDA MEDIA - Global Styles
+// ============================================================
+
+// Tipografía
+:root {
+  --ion-font-family: 'Inter', system-ui, sans-serif;
+  --ion-font-mono: 'IBM Plex Mono', monospace;
+}
+
+// Paleta de colores
+:root {
+  --bg-primary: #0a0e0f;
+  --bg-surface: #111618;
+  --bg-card: #161b1d;
+  --border-default: #2a3033;
+  --border-active: #1D9E75;
+  --text-primary: #e8edf0;
+  --text-secondary: #8a969c;
+  --text-muted: #5a666c;
+  --accent-green: #1D9E75;
+  --accent-red: #E24B4A;
+  --accent-amber: #EF9F27;
+  --accent-blue: #378ADD;
+}
+
+// Fondo global
+ion-content {
+  --background: var(--bg-primary);
+}
+
+ion-toolbar {
+  --background: var(--bg-surface);
+  --color: var(--text-primary);
+  --border-color: var(--border-default);
+}
+
+// Scrollbar oculta
+::-webkit-scrollbar {
+  display: none;
+}

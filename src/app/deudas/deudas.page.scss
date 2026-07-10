@@ -1,0 +1,409 @@
+// ============================================================
+// DEUDAS - Terminal Social
+// ============================================================
+
+$bg: var(--bg-primary);
+$card: var(--bg-card);
+$border: var(--border-default);
+$muted: var(--text-muted);
+$text: var(--text-primary);
+$teal: #1D9E75;
+$teal-bg: rgba(29, 158, 117, .12);
+$teal-dim: rgba(29, 158, 117, .3);
+$danger: #E24B4A;
+$danger-dim: rgba(226, 75, 74, .35);
+$danger-bg: rgba(226, 75, 74, .06);
+$warn: #EF9F27;
+$warn-dim: rgba(239, 159, 39, .35);
+$blue: #378ADD;
+$blue-bg: rgba(55, 138, 221, .1);
+
+ion-toolbar {
+  --background: var(--bg-surface);
+  --color: var(--text-primary);
+}
+
+// ── Header ──────────────────────────────────────────────────
+.header-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--ion-font-mono);
+  font-size: 10px;
+  color: $danger;
+  margin-right: 6px;
+
+  ion-icon { font-size: 13px; }
+}
+
+.add-fab {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $teal;
+  margin-right: 8px;
+  text-decoration: none;
+
+  ion-icon { font-size: 18px; color: #04342C; }
+}
+
+// ── Empty ───────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 28px;
+  text-align: center;
+  gap: 10px;
+
+  ion-icon { font-size: 40px; color: $muted; }
+
+  h2 {
+    font-family: var(--ion-font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: $text;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+  p { font-size: 12px; color: $muted; margin: 0; }
+}
+
+.empty-cta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: $teal;
+  font-family: var(--ion-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #04342C;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-decoration: none;
+  margin-top: 4px;
+
+  ion-icon { font-size: 15px; }
+}
+
+.empty-filter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  gap: 6px;
+
+  ion-icon { font-size: 28px; color: $muted; }
+
+  p {
+    font-family: var(--ion-font-mono);
+    font-size: 10px;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+}
+
+// ── Sync Hint ───────────────────────────────────────────────
+.sync-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 12px 0;
+  padding: 8px 10px;
+  background: $teal-bg;
+  border: 1px solid $teal-dim;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $teal;
+
+  ion-icon { font-size: 13px; flex-shrink: 0; }
+}
+
+// ── Resumen ─────────────────────────────────────────────────
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 10px 12px 0;
+}
+
+.res-card {
+  background: $card;
+  border: 1px solid $border;
+  padding: 10px;
+  text-align: center;
+}
+
+.res-lbl {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $muted;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.res-val {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+
+  &.teal { color: $teal; }
+  &.red { color: $danger; }
+}
+
+// ── Filtros ─────────────────────────────────────────────────
+.filters-row {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px 0;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.filter-btn {
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  padding: 5px 10px;
+  border: 1px solid $border;
+  background: transparent;
+  color: $muted;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: all .15s;
+
+  &.active {
+    background: $teal;
+    border-color: $teal;
+    color: #04342C;
+    font-weight: 500;
+  }
+
+  &.warn.active { background: $danger; border-color: $danger; color: #fff; }
+  &.ok.active { background: $teal; border-color: $teal; color: #04342C; }
+}
+
+// ── Grupos ──────────────────────────────────────────────────
+.group-label {
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  font-weight: 500;
+  color: $muted;
+  letter-spacing: 1px;
+  padding: 12px 12px 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  ion-icon { font-size: 11px; }
+}
+
+// ── Tarjeta de deuda ────────────────────────────────────────
+.deuda-card {
+  background: $card;
+  border: 1px solid $border;
+  margin: 0 12px 4px;
+  overflow: hidden;
+  transition: border-color .2s;
+
+  &.expanded { border-color: $teal-dim; }
+  &.vencida { border-color: $danger-dim; }
+}
+
+.dc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+
+  &:active { background: rgba(255, 255, 255, .02); }
+}
+
+.dc-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 16px; }
+}
+
+.dc-info { flex: 1; min-width: 0; }
+
+.dc-name {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+  margin-bottom: 4px;
+}
+
+.dc-track {
+  height: 3px;
+  background: rgba(255, 255, 255, .06);
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.dc-fill {
+  height: 100%;
+  transition: width .5s ease;
+}
+
+.estado-pill {
+  display: inline-block;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  padding: 2px 6px;
+  border: 1px solid $border;
+  letter-spacing: 0.5px;
+
+  &.pendiente { border-color: rgba(55, 138, 221, .3); color: #86C0F3; }
+  &.vencida { border-color: $danger-dim; color: $danger; }
+  &.pagada { border-color: $teal-dim; color: $teal; }
+}
+
+.fecha-urgente {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--ion-font-mono);
+  font-size: 8px;
+  color: $danger;
+  margin-left: 6px;
+
+  ion-icon { font-size: 10px; }
+}
+
+.dc-right { text-align: right; flex-shrink: 0; }
+
+.dc-balance {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+}
+
+.dc-pct {
+  display: block;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  margin-top: 2px;
+}
+
+.dc-chev {
+  display: block;
+  font-size: 13px;
+  color: $muted;
+  margin-top: 4px;
+  margin-left: auto;
+}
+
+// ── Detalle expandible ──────────────────────────────────────
+.dc-detail {
+  border-top: 1px solid $border;
+  padding: 12px 14px;
+}
+
+.dc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.dc-item {
+  span {
+    display: block;
+    font-family: var(--ion-font-mono);
+    font-size: 8px;
+    color: $muted;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  strong {
+    font-family: var(--ion-font-mono);
+    font-size: 11px;
+    color: $text;
+  }
+}
+
+.edu-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(239, 159, 39, .04);
+  border: 1px solid $warn-dim;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $warn;
+  line-height: 1.4;
+  margin-bottom: 10px;
+
+  ion-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+}
+
+.dc-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.act-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid $border;
+  background: transparent;
+  font-family: var(--ion-font-mono);
+  font-size: 9px;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all .15s;
+
+  ion-icon { font-size: 12px; }
+
+  &:active { background: rgba(255, 255, 255, .04); }
+
+  &.primary {
+    background: $teal;
+    border-color: $teal;
+    color: #04342C;
+    font-weight: 600;
+
+    &:active { background: #167a5b; }
+  }
+
+  &.danger {
+    border-color: $danger-dim;
+    color: $danger;
+
+    &:active { background: $danger-bg; }
+  }
+}
+
+// ── Utils ───────────────────────────────────────────────────
+.teal { color: $teal; }
+.warn { color: $warn; }
+

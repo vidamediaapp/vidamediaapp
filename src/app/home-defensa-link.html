@@ -1,0 +1,38 @@
+<!-- 
+  INSTRUCCIÓN: Agrega esto en home.page.html
+  dentro de la sección de links rápidos,
+  después del link del simulador.
+-->
+
+<a routerLink="/defensa" class="quick-link defensa">
+  <ion-icon name="shield-outline"></ion-icon>
+  <span>Defensa legal</span>
+  <div class="defensa-badge" *ngIf="analisis().nivelRiesgo === 'critico' || analisis().nivelRiesgo === 'alto'">
+    Acción requerida
+  </div>
+  <ion-icon name="chevron-forward-outline"></ion-icon>
+</a>
+
+<!-- 
+  Agrega esto al scss de home.page.scss:
+
+  .quick-link.defensa {
+    border-color: rgba(226, 75, 74, 0.4);
+    
+    ion-icon:first-child {
+      color: #E24B4A;
+    }
+
+    .defensa-badge {
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(226, 75, 74, 0.12);
+      color: #F09595;
+      border: .5px solid rgba(226, 75, 74, 0.35);
+      margin-left: auto;
+    }
+  }
+
+  Y agrega shieldOutline en los addIcons() del home.page.ts.
+-->
