@@ -6,10 +6,8 @@ export class AuthController {
 
     async register(req: Request, res: Response): Promise<void> {
         try {
-            
             const { email, password, nombre, apellidoPat, apellidoMat, telefono, rut } = req.body;
 
-            
             if (!email || !password || !nombre || !apellidoPat) {
                 res.status(400).json({
                     success: false,
@@ -30,6 +28,7 @@ export class AuthController {
 
             const token = await this.authService.login({ email, password });
 
+         
             res.status(201).json({
                 success: true,
                 message: 'Usuario registrado exitosamente',
@@ -70,12 +69,20 @@ export class AuthController {
             const payload = await this.authService.verifyToken(token);
             const usuario = await this.authService.obtenerUsuarioPorId(payload.id);
 
+            
             res.status(200).json({
                 success: true,
                 message: 'Login exitoso',
                 data: {
                     token,
-                    usuario
+                    usuario: {
+                        id: usuario.id,
+                        email: usuario.email,
+                        nombre: usuario.nombre,
+                        apaterno: usuario.apaterno,
+                        amaterno: usuario.amaterno,
+                        telefono: usuario.telefono
+                    }
                 }
             });
         } catch (error) {
@@ -107,6 +114,7 @@ export class AuthController {
                 return;
             }
 
+            // ✅ getProfile devuelve data (el interceptor lo desenvuelve)
             res.status(200).json({
                 success: true,
                 data: usuario

@@ -7,4 +7,8 @@ const simulacionController = new SimulacionController();
 
 router.post('/', authenticate, simulacionController.simular.bind(simulacionController));
 
+router.post('/guardar', authenticate, simulacionController.guardarSimulacion.bind(simulacionController));
+
+router.get('/historial', authenticate, simulacionController.obtenerHistorial.bind(simulacionController));
+
 export default router;

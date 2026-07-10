@@ -47,20 +47,20 @@ export class DeudaController {
     }
 
     async crearDeuda(req: Request, res: Response): Promise<void> {
-        try {
-            const usuarioId = req.user?.id;
-            if (!usuarioId) {
-                res.status(401).json({ success: false, message: 'No autorizado' });
-                return;
-            }
-
-            const deuda = await this.deudaService.crearDeuda(req.body, usuarioId);
-            res.status(201).json({ success: true, message: 'Deuda creada exitosamente', data: deuda });
-        } catch (error) {
-            console.error('Error al crear deuda:', error);
-            res.status(500).json({ success: false, message: 'Error al crear deuda' });
+    try {
+        const usuarioId = req.user?.id;
+        if (!usuarioId) {
+            res.status(401).json({ success: false, message: 'No autorizado' });
+            return;
         }
+
+        const deuda = await this.deudaService.crearDeuda(req.body, usuarioId);
+        res.status(201).json({ success: true, message: 'Deuda creada exitosamente', data: deuda });
+    } catch (error) {
+        console.error('Error al crear deuda:', error);
+        res.status(400).json({ success: false, message: error.message || 'Error al crear deuda' });
     }
+}
 
     async actualizarDeuda(req: Request, res: Response): Promise<void> {
         try {

@@ -10,7 +10,6 @@ export class Deuda {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  // ── Relaciones ────────────────────────────────────────
   @ManyToOne(() => Usuario, (usuario) => usuario.deudas, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_usuario' })
   usuario!: Usuario;
@@ -29,7 +28,6 @@ export class Deuda {
   @OneToMany(() => Simulacion, (simulacion) => simulacion.deuda)
   simulaciones!: Simulacion[];
 
-  // ── Datos de la deuda ──────────────────────────────
   @Column({ name: 'monto_original', type: 'decimal', precision: 12, scale: 2 })
   monto_original!: number;
 
@@ -48,12 +46,14 @@ export class Deuda {
   @Column({ name: 'estado', type: 'varchar', length: 20, default: 'pendiente' })
   estado!: string;
 
-  @Column({ name: 'total_cuotas', type: 'int', default: 0 })
+  @Column({ name: 'total_cuotas', type: 'int', default: 12 })
   totalCuotas!: number;
 
   @Column({ name: 'cuotas_pagadas', type: 'int', default: 0 })
   cuotasPagadas!: number;
 
+  @Column({ name: 'cuota_mensual', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  cuotaMensual!: number;
 
   @Column({ name: 'cuotas_sin_interes', type: 'decimal', precision: 12, scale: 2, default: 0 })
   cuotas_sin_interes!: number;
@@ -70,7 +70,6 @@ export class Deuda {
   @Column({ name: 'intereses_acumulados', type: 'decimal', precision: 12, scale: 2, default: 0 })
   intereses_acumulados!: number;
 
-  // ── Auditoría ──────────────────────────────────────────
   @CreateDateColumn({ name: 'creado_en' })
   creadoEn!: Date;
 

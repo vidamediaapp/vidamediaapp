@@ -90,7 +90,7 @@ export class PresupuestoController {
                 return;
             }
 
-            // ✅ Esto devuelve Presupuesto[] (un arreglo)
+            
             const historial = await this.presupuestoService.obtenerHistorial(usuarioId);
 
             res.status(200).json({ success: true, data: historial });

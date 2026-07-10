@@ -3,7 +3,7 @@ export class CreateUsuarioDto {
     password: string;
     nombre: string;
     apellidoPat: string;   
-    apellidoMat?: string;  
-    rut?: string;
-    telefono?: string;
+    apellidoMat: string;  
+    rut: string;
+    telefono: string;
 }
