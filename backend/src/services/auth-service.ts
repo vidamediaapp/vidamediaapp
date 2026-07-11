@@ -33,6 +33,12 @@ export class AuthService {
         if (usuarioExistente) {
             throw new Error('El correo electrónico ya está registrado.');
         }
+
+        const existente = await this.userRepository.findOne({ where: { rut: data.rut } });
+        if (existente) {
+         throw new Error('El RUT ya se encuentra registrado');
+      }
+
         const SaltRounds = 10;
         const passwordHash = await bcrypt.hash(data.password, SaltRounds);
         const nuevoUsuario = this.userRepository.create({
