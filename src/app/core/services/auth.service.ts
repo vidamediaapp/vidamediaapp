@@ -48,7 +48,7 @@ export class AuthService {
       telefono: dto.telefono,
       rut: dto.rut,
     };
-    return this.http.post<AuthResponse>(`${API}/auth/registro`, payload).pipe(
+    return this.http.post<AuthResponse>(`${API}/auth/register`, payload).pipe(
       tap(res => this.saveSession(res)),
       catchError(this.handleError),
     );
@@ -60,10 +60,8 @@ export class AuthService {
   }
 
   private async saveSession(res: AuthResponse): Promise<void> {
-    // Normalizar nombres de usuario para consistencia en toda la app
     if (res.usuario) {
-      // El backend devuelve apaterno/amaterno en la respuesta de login/register
-      // Nos aseguramos de que existan
+
       if (!res.usuario.apaterno && (res.usuario as any).apellidoPat) {
         res.usuario.apaterno = (res.usuario as any).apellidoPat;
       }
