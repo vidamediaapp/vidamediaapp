@@ -48,7 +48,7 @@ export class AuthService {
       telefono: dto.telefono,
       rut: dto.rut,
     };
-    return this.http.post<AuthResponse>(`${API}/auth/register`, payload).pipe(
+    return this.http.post<AuthResponse>(`${API}/auth/registro`, payload).pipe(
       tap(res => this.saveSession(res)),
       catchError(this.handleError),
     );

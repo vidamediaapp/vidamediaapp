@@ -24,7 +24,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(cloned).pipe(
     catchError((error: HttpErrorResponse) => {
-      console.error('❌ Interceptor - Error:', error.status, error.url);
+      console.error('Interceptor - Error:', error.status, error.url);
       
    
       if (error.status === 401 && !req.url.includes('/auth/')) {
