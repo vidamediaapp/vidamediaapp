@@ -11,4 +11,6 @@ router.post('/guardar', authenticate, simulacionController.guardarSimulacion.bin
 
 router.get('/historial', authenticate, simulacionController.obtenerHistorial.bind(simulacionController));
 
+router.delete('/:id', authenticate, simulacionController.eliminarSimulacion.bind(simulacionController));
+
 export default router;

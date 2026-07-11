@@ -107,18 +107,20 @@ export class PresupuestoPage implements OnInit, ViewWillEnter {
     const tasaInteres = Number(df.value.tasa_interes) || 0;
     const tasa = tasaInteres > 10 ? (tasaInteres / 12) / 100 : tasaInteres / 100;
     const interesMensual = saldo * tasa;
-    return Math.ceil(interesMensual + 1000);
-  });
+    return Math.ceil(interesMensual);
+});
 
-  cuotasMaximasPorSaldo = computed(() => {
+
+    cuotasMaximasPorSaldo = computed(() => {
     const df = this.activeDebtForm();
     if (!df) return 60;
     const saldo = Number(df.value.saldo_pendiente) || 0;
     const cuotaMinima = this.cuotaMinimaPosible();
+    if (cuotaMinima <= 0) return 60;
     const maxCuotas = Math.floor(saldo / cuotaMinima);
     return Math.min(Math.max(1, maxCuotas), 60);
+  
   });
-
   validacionCuotas = computed(() => {
     const df = this.activeDebtForm();
     if (!df) return null;

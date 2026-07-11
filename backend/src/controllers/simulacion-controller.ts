@@ -223,5 +223,28 @@ export class SimulacionController {
         console.error('Error al obtener historial:', error);
         res.status(500).json({ success: false, message: 'Error al obtener historial' });
     }
-}
+    }
+   
+    async eliminarSimulacion(req: Request, res: Response): Promise<void> {
+    try {
+        const usuarioId = req.user?.id;
+        if (!usuarioId) {
+            res.status(401).json({ success: false, message: 'No autorizado' });
+            return;
+        }
+
+        const id = req.params.id as string;
+        const resultado = await this.simulacionRepo.delete({ id, usuario: { id: usuarioId } });
+
+        if (resultado.affected === 0) {
+            res.status(404).json({ success: false, message: 'Simulación no encontrada' });
+            return;
+        }
+
+        res.status(200).json({ success: true, message: 'Simulación eliminada' });
+    } catch (error) {
+        console.error('Error al eliminar simulación:', error);
+        res.status(500).json({ success: false, message: 'Error al eliminar simulación' });
+    }
+    }  
 }

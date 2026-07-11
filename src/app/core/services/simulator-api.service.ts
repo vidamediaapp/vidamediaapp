@@ -41,4 +41,8 @@ export class SimulatorApiService {
     if (err.status >= 500)  msg = 'Error del servidor.';
     return throwError(() => ({ status: err.status, message: msg }));
   }
+
+  eliminarSimulacion(id: string): Observable<void> {
+    return this.http.delete<void>(`${API_URL}/simulaciones/${id}`);
+}
 }

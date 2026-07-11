@@ -8,15 +8,30 @@ import {
   cardOutline, calculatorOutline, layersOutline,
   shieldCheckmarkOutline, flameOutline, cashOutline,
   informationOutline, ribbonOutline, medalOutline,
-  chevronForwardOutline, timeOutline,
+  chevronForwardOutline, timeOutline, closeCircleOutline,
 } from 'ionicons/icons';
 
 import { AppStore } from '../core/services/app.store';
 import { ApiService } from '../core/services/api.service';
 import { AuthService } from '../core/services/auth.service';
 import { SimulatorApiService } from '../core/services/simulator-api.service';
+import { CmfService } from '../core/services/cmf.service';
 import { ClpPipe } from '../shared/pipes/clp.pipe';
 import { Deuda } from '../core/models/app.model';
+
+interface SimulacionGuardada {
+  id: string;
+  deuda?: {
+    id: string;
+    acreedor?: {
+      id: string;
+      nombreComercial: string;
+    };
+  };
+  monto_propuesto: number;
+  meses_proyectados: number;
+  fecha_simulacion: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -30,6 +45,7 @@ export class HomePage implements OnInit {
   private api = inject(ApiService);
   public auth = inject(AuthService);
   private simulatorApi = inject(SimulatorApiService);
+  private cmfService = inject(CmfService);
 
   userName = computed(() => this.auth.userNombre() || 'USUARIO');
   fullName = this.auth.fullName;
@@ -82,14 +98,15 @@ export class HomePage implements OnInit {
     return 'over';
   });
 
-  ufValue = signal<number>(39450);
-  lastUpdated = signal<string>('08 Jul');
+  ufValue = signal<number>(0);
+  lastUpdated = signal<string>('');
   ufInputValue = signal<number>(0);
-  simulaciones = signal<any[]>([]);
+  simulaciones = signal<SimulacionGuardada[]>([]);
 
   ufResult(): number | null {
     const val = this.ufInputValue();
-    return val > 0 ? Math.round(val * this.ufValue()) : null;
+    if (!val || this.ufValue() <= 0) return null;
+    return Math.round(val * this.ufValue());
   }
 
   constructor() {
@@ -98,7 +115,7 @@ export class HomePage implements OnInit {
       cardOutline, calculatorOutline, layersOutline,
       shieldCheckmarkOutline, flameOutline, cashOutline,
       informationOutline, ribbonOutline, medalOutline,
-      chevronForwardOutline, timeOutline,
+      chevronForwardOutline, timeOutline, closeCircleOutline,
     });
   }
 
@@ -107,23 +124,52 @@ export class HomePage implements OnInit {
   ionViewWillEnter() {
     this.refreshDataFromServer();
     this.cargarSimulaciones();
+    this.cargarUF();
   }
 
   private refreshDataFromServer() {
     const now = new Date();
     this.api.getPresupuesto(now.getMonth() + 1, now.getFullYear()).subscribe({
-      error: (err) => { if (err.status !== 401) console.error('Error al recuperar presupuesto:', err); }
+      error: (err) => {
+        if (err.status !== 404) console.error('Error al cargar presupuesto:', err);
+      }
     });
     this.api.getDeudas().subscribe({
-      error: (err) => { if (err.status !== 401) console.error('Error al cargar deudas:', err); }
+      error: (err) => {
+        if (err.status !== 404) console.error('Error al cargar deudas:', err);
+      }
     });
   }
 
   cargarSimulaciones(): void {
     this.simulatorApi.getHistorial().subscribe({
-      next: (data) => this.simulaciones.set(data),
+      next: (data: SimulacionGuardada[]) => this.simulaciones.set(data),
       error: () => {}
     });
+  }
+
+  cargarUF(): void {
+    this.cmfService.obtenerUF().subscribe({
+      next: (data) => {
+        this.ufValue.set(data.valor);
+        this.lastUpdated.set(data.fecha);
+      },
+      error: () => {
+        this.ufValue.set(39450);
+        this.lastUpdated.set('No disponible');
+      }
+    });
+  }
+
+  eliminarSimulacion(id: string): void {
+    if (confirm('¿Eliminar esta simulación?')) {
+      this.simulatorApi.eliminarSimulacion(id).subscribe({
+        next: () => {
+          this.simulaciones.update(list => list.filter(s => s.id !== id));
+        },
+        error: (err) => console.error('Error al eliminar simulación:', err)
+      });
+    }
   }
 
   creditorColor(acreedorId: string): string {

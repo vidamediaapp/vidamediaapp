@@ -21,6 +21,7 @@ router.use('/presupuesto', presupuestosRoutes);
 router.use('/simulaciones', simulacionesRoutes);
 router.use('/indicadores', cmfRoutes);
 router.use('/analisis', analisisRoutes);
+router.use('/cmf', cmfRoutes);
 
 
 router.get('/ping', (req, res) => {

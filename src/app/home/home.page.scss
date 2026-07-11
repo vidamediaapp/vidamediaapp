@@ -706,6 +706,16 @@
   }
 }
 
+.sim-delete {
+    background: none;
+    border: none;
+    color: rgba(107, 114, 128, .4);
+    cursor: pointer;
+    padding: 4px;
+    ion-icon { font-size: 14px; }
+    &:active { color: #E24B4A; }
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 .teal { color: var(--accent-green); }
 .warn { color: var(--accent-amber); }

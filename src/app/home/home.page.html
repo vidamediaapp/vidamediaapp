@@ -168,6 +168,14 @@
       </div>
     </div>
 
+    <div class="sim-row" *ngFor="let s of simulaciones().slice(0, 3)">
+    <span class="sim-creditor">{{ s.deuda?.acreedor?.nombreComercial || 'Simulacion' }}</span>
+    <span class="sim-detail">{{ s.monto_propuesto | clp }} · {{ s.meses_proyectados }}M</span>
+    <button class="sim-delete" (click)="eliminarSimulacion(s.id); $event.stopPropagation()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+    </button>
+     </div>
+
     <div class="section-wrap">
       <div class="tip-panel" [routerLink]="dailyTip().route">
         <span class="tip-label">SUGERENCIA</span>
