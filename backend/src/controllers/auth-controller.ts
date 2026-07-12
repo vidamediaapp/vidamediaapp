@@ -114,7 +114,7 @@ export class AuthController {
                 return;
             }
 
-            // ✅ getProfile devuelve data (el interceptor lo desenvuelve)
+        
             res.status(200).json({
                 success: true,
                 data: usuario

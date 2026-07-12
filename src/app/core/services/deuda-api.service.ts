@@ -3,9 +3,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Deuda, CreateDeudaDto, Acreedor } from '../models/app.model';
+import { environment } from '../../../environments/environment';
 
-// ── URL base del backend de Diego ─────────────────────────────────
-const API_URL = 'http://localhost:3000/api';
+const API_URL = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class DeudaApiService {
